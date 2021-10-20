@@ -1,0 +1,10 @@
+break last
+run
+set logging file out9.txt
+set logging overwrite
+set logging on
+
+x/dg &n1
+x/xg &n1
+
+set logging off

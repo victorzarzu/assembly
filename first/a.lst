@@ -1,0 +1,19 @@
+     1                                 %line 1+1 a.asm
+     2                                 [section .data]
+     3                                 
+     4 00000000 7B000000               a dd 123
+     5 00000004 7C000000               b dd 124
+     6 00000008 00000000               c dd 0
+     7                                 
+     8                                 [section .text]
+     9                                 [global _start]
+    10                                 _start:
+    11                                 
+    12 00000000 8B0425[00000000]       mov eax, dword [a]
+    13 00000007 030425[00000000]       add eax, dword [b]
+    14 0000000E 890425[00000000]       mov dword [c], eax
+    15                                 
+    16                                 last:
+    17 00000015 48C7C000000000          mov rax, 0
+    18 0000001C 48C7C700000000          mov rdi, 0
+    19 00000023 0F05                    syscall

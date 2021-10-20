@@ -1,0 +1,31 @@
+     1                                 %line 1+1 8.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 0
+     6                                 
+     7 00000000 1E00000000000000       n dq 30
+     8 00000008 000000000000000000-    sum ddq 0
+     9 00000008 00000000000000     
+    10                                 
+    11                                 [section .text]
+    12                                 [global _start]
+    13                                 _start:
+    14                                 
+    15 00000000 488B0C25[00000000]     mov rcx, qword [n]
+    16                                 
+    17                                 loops:
+    18 00000008 48010C25[00000000]      add qword [sum], rcx
+    19 00000010 48FFC9                  dec rcx
+    20 00000013 4883F900                cmp rcx, 0
+    21 00000017 75ED                    jne loops
+    22                                 
+    23 00000019 488B0425[00000000]     mov rax, qword [sum]
+    24 00000021 48F7E0                 mul rax
+    25 00000024 48890425[00000000]     mov qword [sum], rax
+    26 0000002C 48891425[08000000]     mov qword [sum + 8], rdx
+    27                                 
+    28                                 last:
+    29 00000034 48C7C000000000          mov rax, SYS_exit
+    30 0000003B 48C7C700000000          mov rdi, EXIT_SUCCESS
+    31 00000042 0F05                    syscall

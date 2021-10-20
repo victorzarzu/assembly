@@ -1,0 +1,16 @@
+break last
+run
+
+set logging file out2.txt
+set logging on
+set pagination off
+set logging overwrite
+
+x/5dw &list1
+echo "-----------------------------"
+x/6dw &list2
+echo "-----------------------------"
+x/7dw &list3
+
+set logging off
+quit

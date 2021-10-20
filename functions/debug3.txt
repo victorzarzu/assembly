@@ -1,0 +1,34 @@
+break last
+run
+
+set logging file out3.txt
+set logging overwrite
+set pagination off
+set logging on
+set prompt
+
+x/6dw &list1
+x/dw &sum1
+x/dw &ave1
+x/dw &min1
+x/dw &max1
+x/dw &med11
+x/dw &med12
+
+x/11dw &list2
+x/dw &sum2
+x/dw &ave2
+x/dw &min2
+x/dw &max2
+x/dw &med21
+x/dw &med22
+
+x/8dw &list3
+x/dw &sum3
+x/dw &ave3
+x/dw &min3
+x/dw &max3
+x/dw &med31
+x/dw &med32
+
+set logging off

@@ -1,0 +1,4 @@
+(gdb) Already logging to out3.txt.
+(gdb) 0x402018:	0
+(gdb) 0x40201c:	0
+(gdb) 

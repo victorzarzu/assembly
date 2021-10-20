@@ -1,0 +1,102 @@
+     1                                 %line 14+1 2.asm
+     2                                 
+     3                                 %line 26+1 2.asm
+     4                                 
+     5                                 [section .data]
+     6                                 
+     7                                 SYS_exit equ 60
+     8                                 EXIT_SUCCESS equ 0
+     9                                 
+    10 00000000 000000000000F0BF       negone dq -1.0
+    11 00000008 0000000000000000       zero dq 0.0
+    12                                 
+    13 00000010 9A997941               s1 dd 15.6
+    14 00000014 CDCCE1C2               s2 dd -112.90
+    15 00000018 CDCC4CBF               s3 dd -0.8
+    16                                 
+    17 0000001C A4703D0AD7634CC0       d1 dq -56.78
+    18 00000024 6666666666662940       d2 dq 12.7
+    19 0000002C 3F355EBA49206240       d3 dq 145.009
+    20                                 
+    21                                 [section .text]
+    22                                 [global _start]
+    23                                 _start:
+    24                                 
+    25                                 
+    26                                 %line 47+0 2.asm
+    27 00000000 F20F5A0425[00000000]     cvtsd2ss xmm0, qword [negone]
+    28 00000009 F20F5A0C25[00000000]     cvtsd2ss xmm1, qword [zero]
+    29 00000012 F30F101425[00000000]     movss xmm2, dword [s1]
+    30 0000001B 0F2ED1                 ucomiss xmm2, xmm1
+    31                                 
+    32 0000001E 730B                   jae ..@3.not_neg
+    33 00000020 F30F59D0               mulss xmm2, xmm0
+    34 00000024 F30F111425[00000000]     movss dword [s1], xmm2
+    35                                 ..@3.not_neg:
+    36                                 
+    37                                 %line 48+1 2.asm
+    38                                 
+    39                                 %line 48+0 2.asm
+    40 0000002D F20F5A0425[00000000]     cvtsd2ss xmm0, qword [negone]
+    41 00000036 F20F5A0C25[00000000]     cvtsd2ss xmm1, qword [zero]
+    42 0000003F F30F101425[00000000]     movss xmm2, dword [s2]
+    43 00000048 0F2ED1                 ucomiss xmm2, xmm1
+    44                                 
+    45 0000004B 730B                   jae ..@4.not_neg
+    46 0000004D F30F59D0               mulss xmm2, xmm0
+    47 00000051 F30F111425[00000000]     movss dword [s2], xmm2
+    48                                 ..@4.not_neg:
+    49                                 
+    50                                 %line 49+1 2.asm
+    51                                 
+    52                                 %line 49+0 2.asm
+    53 0000005A F20F5A0425[00000000]     cvtsd2ss xmm0, qword [negone]
+    54 00000063 F20F5A0C25[00000000]     cvtsd2ss xmm1, qword [zero]
+    55 0000006C F30F101425[00000000]     movss xmm2, dword [s3]
+    56 00000075 0F2ED1                 ucomiss xmm2, xmm1
+    57                                 
+    58 00000078 730B                   jae ..@5.not_neg
+    59 0000007A F30F59D0               mulss xmm2, xmm0
+    60 0000007E F30F111425[00000000]     movss dword [s3], xmm2
+    61                                 ..@5.not_neg:
+    62                                 
+    63                                 %line 50+1 2.asm
+    64                                 
+    65                                 
+    66                                 %line 51+0 2.asm
+    67 00000087 F20F100425[00000000]     movsd xmm0, qword [d1]
+    68 00000090 660F2E0425[00000000]     ucomisd xmm0, qword [zero]
+    69                                 
+    70 00000099 7310                   jae ..@6.not_neg
+    71 0000009B F20F590425[00000000]     mulsd xmm0, qword [negone]
+    72 000000A4 F20F110425[00000000]     movsd qword [d1], xmm0
+    73                                 ..@6.not_neg:
+    74                                 
+    75                                 %line 52+1 2.asm
+    76                                 
+    77                                 %line 52+0 2.asm
+    78 000000AD F20F100425[00000000]     movsd xmm0, qword [d2]
+    79 000000B6 660F2E0425[00000000]     ucomisd xmm0, qword [zero]
+    80                                 
+    81 000000BF 7310                   jae ..@7.not_neg
+    82 000000C1 F20F590425[00000000]     mulsd xmm0, qword [negone]
+    83 000000CA F20F110425[00000000]     movsd qword [d2], xmm0
+    84                                 ..@7.not_neg:
+    85                                 
+    86                                 %line 53+1 2.asm
+    87                                 
+    88                                 %line 53+0 2.asm
+    89 000000D3 F20F100425[00000000]     movsd xmm0, qword [d3]
+    90 000000DC 660F2E0425[00000000]     ucomisd xmm0, qword [zero]
+    91                                 
+    92 000000E5 7310                   jae ..@8.not_neg
+    93 000000E7 F20F590425[00000000]     mulsd xmm0, qword [negone]
+    94 000000F0 F20F110425[00000000]     movsd qword [d3], xmm0
+    95                                 ..@8.not_neg:
+    96                                 
+    97                                 %line 54+1 2.asm
+    98                                 
+    99                                 endProgram:
+   100 000000F9 48C7C03C000000          mov rax, SYS_exit
+   101 00000100 48C7C700000000          mov rdi, EXIT_SUCCESS
+   102 00000107 0F05                    syscall

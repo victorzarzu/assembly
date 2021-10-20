@@ -1,0 +1,14 @@
+break last
+run
+
+set logging file out2.txt
+set pagination off
+set logging overwrite
+set logging on
+set prompt
+
+x/6dw &list1
+x/11dw &list2
+x/8dw &list3
+
+set logging off

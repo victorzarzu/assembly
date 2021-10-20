@@ -1,0 +1,12 @@
+break last
+run
+set pagination off
+set logging file out1.txt
+set logging overwrite
+set logging on
+
+x/s &strNum
+x/6cb &strNum
+
+set logging off
+quit

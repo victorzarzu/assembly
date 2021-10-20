@@ -1,0 +1,54 @@
+     1                                 %line 1+1 2.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 60
+     6                                 qword_pace equ 8
+     7                                 
+     8 00000000 61626364636261         text db "abcdcba"
+     9 00000007 0700000000000000       len dq 7
+    10 0000000F 31323334353637         reverse db "1234567"
+    11 00000016 00                     pal db 0
+    12                                 
+    13                                 [section .text]
+    14                                 [global _start]
+    15                                 _start:
+    16                                 
+    17 00000000 48C7C100000000         mov rcx, 0
+    18                                 
+    19                                 pushing:
+    20 00000007 48C7C000000000          mov rax, 0
+    21 0000000E 8A81[00000000]          mov al, byte [text + rcx]
+    22 00000014 50                      push rax
+    23 00000015 48FFC1                  inc rcx
+    24 00000018 483B0C25[00000000]      cmp rcx, qword [len]
+    25 00000020 75E3                    jne pushing
+    26                                 
+    27 00000022 48C7C100000000         mov rcx, 0
+    28                                 
+    29                                 poping:
+    30 00000029 58                      pop rax
+    31 0000002A 8881[00000000]          mov byte [reverse + rcx], al
+    32 00000030 48FFC1                  inc rcx
+    33 00000033 483B0C25[00000000]      cmp rcx, qword [len]
+    34 0000003B 75EA                    jne poping
+    35                                 
+    36 0000003D 48C7C100000000         mov rcx, 0
+    37                                 
+    38                                 comparing:
+    39 00000044 8A81[00000000]          mov al, byte [reverse + rcx]
+    40 0000004A 3A81[00000000]          cmp al, byte [text + rcx]
+    41 00000050 7513                    jne non_pal
+    42 00000052 48FFC1                  inc rcx
+    43 00000055 483B0C25[00000000]      cmp rcx, qword [len]
+    44 0000005D 75E3                    jne comparing
+    45                                 
+    46 0000005F C60425[00000000]01     mov byte [pal], 1
+    47                                 non_pal:
+    48                                 
+    49 00000067 48FFCC                 dec rsp
+    50                                 
+    51                                 last:
+    52 0000006A 48C7C03C000000          mov rax, SYS_exit
+    53 00000071 48C7C700000000          mov rdi, EXIT_SUCCESS
+    54 00000078 0F05                    syscall

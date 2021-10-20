@@ -1,0 +1,42 @@
+     1                                 %line 1+1 1.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 60
+     6                                 qword_pace equ 8
+     7                                 
+     8 00000000 05000000               n0 dd 5
+     9 00000004 0500000000000000       n1 dq 5
+    10 0000000C 0500000000000000       n2 dq 5
+    11 00000014 0C0000000000000017-    lst dq 12, 23, 34, 56, 67
+    12 00000014 000000000000002200-
+    13 00000014 000000000000380000-
+    14 00000014 000000000043000000-
+    15 00000014 00000000           
+    16 0000003C 0500000000000000       len dq 5
+    17                                 
+    18                                 [section .text]
+    19                                 [global _start]
+    20                                 _start:
+    21                                 
+    22 00000000 48C7C100000000         mov rcx, 0
+    23                                 
+    24                                 iterate:
+    25 00000007 FF34CD[00000000]        push qword [lst + rcx * qword_pace]
+    26 0000000E 48FFC1                  inc rcx
+    27 00000011 483B0C25[00000000]      cmp rcx, qword [len]
+    28 00000019 75EA                    jne iterate
+    29                                 
+    30                                 
+    31 0000001B 48C7C100000000         mov rcx, 0
+    32                                 
+    33                                 iter:
+    34 00000022 8F04CD[00000000]        pop qword [lst + rcx * qword_pace]
+    35 00000029 48FFC1                  inc rcx
+    36 0000002C 483B0C25[00000000]      cmp rcx, qword [len]
+    37 00000034 75EA                    jne iter
+    38                                 
+    39                                 last:
+    40 00000036 48C7C03C000000          mov rax, SYS_exit
+    41 0000003D 48C7C700000000          mov rdi, EXIT_SUCCESS
+    42 00000044 0F05                    syscall

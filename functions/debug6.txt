@@ -1,0 +1,14 @@
+break last
+run
+
+set logging file out6.txt
+set logging overwrite
+set pagination off
+set logging on
+
+x/dw &num1
+x/dw &num2
+x/dw &num3
+x/dw &num4
+
+set logging off

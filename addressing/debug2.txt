@@ -1,0 +1,11 @@
+break last
+run
+set logging file out2.txt
+set logging overwrite
+set logging on
+
+x/dw &max
+x/dw &min
+x/dw &avg
+
+set logging off

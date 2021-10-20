@@ -1,0 +1,92 @@
+     1                                 %line 30+1 1.asm
+     2                                 
+     3                                 [section .data]
+     4                                 
+     5                                 SYS_exit equ 60
+     6                                 EXIT_SUCCESS equ 0
+     7                                 
+     8 00000000 0E0000000F00000010-    list1 dd 14, 15, 16, 17, 18
+     9 00000000 000000110000001200-
+    10 00000000 0000               
+    11 00000014 05000000               len1 dd 5
+    12 00000018 00000000               avg1 dd 0
+    13 0000001C 00000000               min1 dd 0
+    14 00000020 00000000               max1 dd 0
+    15                                 
+    16 00000024 05000000FFFFFFFFF6-    list2 dd 5, -1, -10, 1, 70, 15, -5
+    17 00000024 FFFFFF010000004600-
+    18 00000024 00000F000000FBFFFF-
+    19 00000024 FF                 
+    20 00000040 07000000               len2 dd 7
+    21 00000044 00000000               avg2 dd 0
+    22 00000048 00000000               min2 dd 0
+    23 0000004C 00000000               max2 dd 0
+    24                                 
+    25                                 [section .text]
+    26                                 [global _start]
+    27                                 _start:
+    28                                 
+    29                                 
+    30                                 
+    31                                 %line 53+0 1.asm
+    32 00000000 B900000000             mov ecx, 0
+    33 00000005 8B0425[00000000]       mov eax, dword [list1]
+    34 0000000C 890425[00000000]       mov dword [min1], eax
+    35 00000013 890425[00000000]       mov dword [max1], eax
+    36 0000001A B800000000             mov eax, 0
+    37                                 
+    38                                 ..@3.iterate:
+    39 0000001F 678B1C8D[00000000]      mov ebx, dword [list1 + ecx * 4]
+    40 00000027 01D8                    add eax, ebx
+    41 00000029 FFC1                    inc ecx
+    42 0000002B 3B1C25[00000000]        cmp ebx, dword [min1]
+    43 00000032 7D05                    jge ..@3.non_minim
+    44 00000034 891C25[00000000]        mov dword [min1], ebx
+    45                                  ..@3.non_minim:
+    46 0000003B 3B1C25[00000000]        cmp ebx, dword [max1]
+    47 00000042 7E05                    jle ..@3.non_maxim
+    48 00000044 891C25[00000000]        mov dword [max1], ebx
+    49                                  ..@3.non_maxim:
+    50 0000004B 3B0C25[00000000]        cmp ecx, dword [len1]
+    51 00000052 75C9                    jne ..@3.iterate
+    52 00000054 B900000000              mov ecx, 0
+    53                                 
+    54 00000059 99                     cdq
+    55 0000005A F73C25[00000000]       idiv dword [len1]
+    56 00000061 890425[00000000]       mov dword [avg1], eax
+    57                                 
+    58                                 %line 54+1 1.asm
+    59                                 
+    60                                 %line 54+0 1.asm
+    61 00000068 B900000000             mov ecx, 0
+    62 0000006D 8B0425[00000000]       mov eax, dword [list2]
+    63 00000074 890425[00000000]       mov dword [min2], eax
+    64 0000007B 890425[00000000]       mov dword [max2], eax
+    65 00000082 B800000000             mov eax, 0
+    66                                 
+    67                                 ..@4.iterate:
+    68 00000087 678B1C8D[00000000]      mov ebx, dword [list2 + ecx * 4]
+    69 0000008F 01D8                    add eax, ebx
+    70 00000091 FFC1                    inc ecx
+    71 00000093 3B1C25[00000000]        cmp ebx, dword [min2]
+    72 0000009A 7D05                    jge ..@4.non_minim
+    73 0000009C 891C25[00000000]        mov dword [min2], ebx
+    74                                  ..@4.non_minim:
+    75 000000A3 3B1C25[00000000]        cmp ebx, dword [max2]
+    76 000000AA 7E05                    jle ..@4.non_maxim
+    77 000000AC 891C25[00000000]        mov dword [max2], ebx
+    78                                  ..@4.non_maxim:
+    79 000000B3 3B0C25[00000000]        cmp ecx, dword [len2]
+    80 000000BA 75C9                    jne ..@4.iterate
+    81 000000BC B900000000              mov ecx, 0
+    82                                 
+    83 000000C1 99                     cdq
+    84 000000C2 F73C25[00000000]       idiv dword [len2]
+    85 000000C9 890425[00000000]       mov dword [avg2], eax
+    86                                 
+    87                                 %line 55+1 1.asm
+    88                                 
+    89                                 last:
+    90 000000D0 48C7C03C000000          mov rax, SYS_exit
+    91 000000D7 48C7C700000000          mov rdi, EXIT_SUCCESS
+    92 000000DE 0F05                    syscall

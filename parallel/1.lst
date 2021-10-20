@@ -1,0 +1,50 @@
+     1                                 %line 1+1 1.asm
+     2                                 [section .data]
+     3                                 
+     4                                 MAX equ 1000000000
+     5                                 
+     6                                 [extern x]
+     7                                 [extern y]
+     8                                 [extern val0]
+     9                                 [extern val1]
+    10                                 
+    11                                 [section .text]
+    12                                 [global thr0]
+    13                                 thr0:
+    14                                 
+    15 00000000 48C7C100CA9A3B         mov rcx, MAX
+    16 00000007 48D1E9                 shr rcx, 1
+    17 0000000A 4C8B1425[00000000]     mov r10, qword [x]
+    18 00000012 4C8B1C25[00000000]     mov r11, qword [y]
+    19                                 
+    20                                 loop_thr0:
+    21 0000001A 488B0425[00000000]      mov rax, qword [val0]
+    22 00000022 4899                    cqo
+    23 00000024 49F7F2                  div r10
+    24 00000027 4C01D8                  add rax, r11
+    25 0000002A 48890425[00000000]      mov qword [val0], rax
+    26 00000032 48FFC9                  dec rcx
+    27 00000035 4883F900                cmp rcx, 0
+    28 00000039 75DD                    jne loop_thr0
+    29                                 
+    30 0000003B C3                     ret
+    31                                 
+    32                                 [global thr1]
+    33                                 thr1:
+    34                                 
+    35 0000003C 48C7C100CA9A3B         mov rcx, MAX
+    36 00000043 48D1E9                 shr rcx, 1
+    37 00000046 4C8B1425[00000000]     mov r10, qword [x]
+    38 0000004E 4C8B1C25[00000000]     mov r11, qword [y]
+    39                                 
+    40                                 loop_thr1:
+    41 00000056 488B0425[00000000]      mov rax, qword [val1]
+    42 0000005E 4899                    cqo
+    43 00000060 49F7F2                  div r10
+    44 00000063 4C01D8                  add rax, r11
+    45 00000066 48890425[00000000]      mov qword [val1], rax
+    46 0000006E 48FFC9                  dec rcx
+    47 00000071 4883F900                cmp rcx, 0
+    48 00000075 75DD                    jne loop_thr1
+    49                                 
+    50 00000077 C3                     ret

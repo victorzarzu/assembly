@@ -1,0 +1,9 @@
+break last
+run
+set logging file out1.txt
+set logging overwrite
+set logging on
+
+x/dw &sum
+
+set logging off

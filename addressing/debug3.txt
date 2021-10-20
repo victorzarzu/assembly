@@ -1,0 +1,25 @@
+break last
+run
+set logging file out4.txt
+set logging overwrite
+set logging on
+
+x/dw &min
+x/dw &med
+x/dw &max
+x/dw &sum
+x/dw &avg
+
+echo -------------- \n\n
+
+x/dw &neg_sum
+x/dw &neg_count
+x/dw &neg_avg 
+
+echo -------------- \n\n
+
+x/dw &t_sum
+x/dw &t_count
+x/dw &t_avg
+
+set logging off

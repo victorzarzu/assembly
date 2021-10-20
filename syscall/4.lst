@@ -1,0 +1,112 @@
+     1                                 %line 1+1 4.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  pass resb 14
+     5 0000000E <gap>                  chr resb 1
+     6 0000000F <gap>                  file_descriptor resq 1
+     7                                 
+     8                                 [section .data]
+     9                                 
+    10                                 NULL equ 0
+    11                                 LF equ 10
+    12                                 
+    13                                 SYS_read equ 0
+    14                                 SYS_write equ 1
+    15                                 SYS_open equ 2
+    16                                 SYS_close equ 3
+    17                                 SYS_exit equ 60
+    18                                 
+    19                                 O_RDONLY equ 0
+    20                                 STDOUT equ 1
+    21                                 
+    22                                 len equ 13
+    23                                 
+    24 00000000 4E4F53554343455353-    status db "NOSUCCESS", NULL
+    25 00000000 00                 
+    26 0000000A 5355434345535300       success db "SUCCESS", NULL
+    27 00000012 0800000000000000       len_suc dq $ - success
+    28 0000001A 706173735F77726974-    file_path db "pass_write.txt", NULL
+    29 0000001A 652E74787400       
+    30                                 
+    31                                 [section .text]
+    32                                 
+    33                                 [global openFile]
+    34                                 openFile:
+    35                                 
+    36 00000000 48C7C002000000         mov rax, SYS_open
+    37 00000007 48C7C7[00000000]       mov rdi, file_path
+    38 0000000E 48C7C600000000         mov rsi, O_RDONLY
+    39 00000015 0F05                   syscall
+    40                                 
+    41 00000017 48890425[00000000]     mov qword [file_descriptor], rax
+    42                                 
+    43 0000001F C3                     ret
+    44                                 
+    45                                 
+    46                                 [global readFile]
+    47                                 readFile:
+    48                                 
+    49 00000020 48C7C000000000         mov rax, SYS_read
+    50 00000027 488B3C25[00000000]     mov rdi, qword [file_descriptor]
+    51 0000002F 48C7C6[00000000]       mov rsi, pass
+    52 00000036 48C7C20D000000         mov rdx, len
+    53 0000003D 0F05                   syscall
+    54                                 
+    55 0000003F C680[00000000]00       mov byte [pass + rax], NULL
+    56                                 
+    57 00000046 C3                     ret
+    58                                 
+    59                                 
+    60                                 [global closeFile]
+    61                                 closeFile:
+    62                                 
+    63 00000047 48C7C7[00000000]       mov rdi, file_path
+    64                                 
+    65 0000004E C3                     ret
+    66                                 
+    67                                 [global writePass]
+    68                                 writePass:
+    69                                 
+    70 0000004F 48C7C001000000         mov rax, SYS_write
+    71 00000056 48C7C701000000         mov rdi, STDOUT
+    72 0000005D 48C7C6[00000000]       mov rsi, pass
+    73 00000064 48C7C20D000000         mov rdx, len
+    74 0000006B 0F05                   syscall
+    75                                 
+    76 0000006D C3                     ret
+    77                                 
+    78                                 [global _start]
+    79                                 _start:
+    80                                 
+    81 0000006E E888FFFFFF             call openFile
+    82                                 
+    83 00000073 48833C25[00000000]-    cmp qword [file_descriptor], 0
+    84 00000073 00                 
+    85 0000007C 7C33                   jl its_not_ok
+    86                                 
+    87 0000007E E898FFFFFF             call readFile
+    88                                 
+    89 00000083 4883F800               cmp rax, 0
+    90 00000087 7C28                   jl its_not_ok
+    91                                 
+    92 00000089 E8B4FFFFFF             call closeFile
+    93                                 
+    94 0000008E 48C7C100000000         mov rcx, 0
+    95                                 set_status:
+    96 00000095 8A81[00000000]          mov al, byte [success + rcx]
+    97 0000009B 8881[00000000]          mov byte [status + rcx], al
+    98 000000A1 48FFC1                  inc rcx
+    99 000000A4 483B0C25[00000000]      cmp rcx, qword [len_suc]
+   100 000000AC 75E5                    jne set_status
+   101                                 
+   102 000000AE E897FFFFFF             call writePass
+   103                                 
+   104                                 its_not_ok:
+   105                                 
+   106                                 last:
+   107 000000B3 48C7C03C000000          mov rax, SYS_exit
+   108 000000BA 48C7C700000000          mov rdi, 0
+   109 000000C1 0F05                    syscall
+   110                                 
+   111                                 
+   112                                 

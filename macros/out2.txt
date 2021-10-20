@@ -1,0 +1,21 @@
+(gdb) (gdb) warning: Currently logging to out2.txt.  Turn the logging off and on to make the new setting effective.
+(gdb) warning: Currently logging to out2.txt.  Turn the logging off and on to make the new setting effective.
+(gdb) 0x402000:	10	20	30	40
+0x402010:	50
+(gdb) "-----------------------------"(gdb) 0x402018:	10	-12	-20	50
+0x402028:	506	-24
+(gdb) "-----------------------------"(gdb) 0x402034:	104	2	0	-28
+0x402044:	200	312	-26
+(gdb) 0x402050:	7	0	0	0
+0x402060:	44	2	524288
+(gdb) (gdb) (gdb) warning: Currently logging to out2.txt.  Turn the logging off and on to make the new setting effective.
+(gdb) warning: Currently logging to out2.txt.  Turn the logging off and on to make the new setting effective.
+(gdb) 0x402000:	10	20	30	40
+0x402010:	50
+(gdb) "-----------------------------"(gdb) 0x402018:	10	-12	-20	50
+0x402028:	506	-24
+(gdb) "-----------------------------"(gdb) 0x402034:	104	2	0	-28
+0x402044:	200	312	-26
+(gdb) 0x402050:	7	0	0	0
+0x402060:	44	2	524288
+(gdb) 

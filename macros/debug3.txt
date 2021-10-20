@@ -1,0 +1,11 @@
+break last
+run
+
+set logging file out3.txt
+set pagination off
+set logging overwrite
+set logging on
+
+x/8cb &string_num
+
+set logging off

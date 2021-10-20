@@ -1,0 +1,152 @@
+     1                                 %line 1+1 2.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 01                     len_read db 1
+     5 00000001 01                     chr db 1
+     6 00000002 FF                     read_string db 255
+     7                                 
+     8                                 [section .data]
+     9                                 
+    10                                 NULL equ 0
+    11                                 LF equ 10
+    12                                 
+    13                                 SYS_read equ 0
+    14                                 SYS_write equ 1
+    15                                 SYS_open equ 2
+    16                                 SYS_exit equ 60
+    17                                 
+    18                                 STDIN equ 0
+    19                                 STDOUT equ 1
+    20                                 
+    21                                 O_RDONLY equ 0
+    22                                 
+    23                                 max_read equ 254
+    24                                 
+    25 00000000 4E6F74207468652063-    many_par db "Not the correct number of parameters", NULL
+    26 00000000 6F7272656374206E75-
+    27 00000000 6D626572206F662070-
+    28 00000000 6172616D6574657273-
+    29 00000000 00                 
+    30 00000025 2500000000000000       len_many dq $ - many_par
+    31 0000002D 5468652066696C6520-    not_open db "The file couldn't be opened", NULL
+    32 0000002D 636F756C646E277420-
+    33 0000002D 6265206F70656E6564-
+    34 0000002D 00                 
+    35 00000049 1C00000000000000       len_not_open dq $ - not_open
+    36 00000051 436F756C646E277420-    not_read db "Couldn't read from file", NULL
+    37 00000051 726561642066726F6D-
+    38 00000051 2066696C6500       
+    39 00000069 1800000000000000       len_not_read dq $ - not_read
+    40                                 
+    41                                 
+    42                                 [section .text]
+    43                                 [global exitProgram]
+    44                                 exitProgram:
+    45                                 
+    46 00000000 48C7C03C000000         mov rax, SYS_exit
+    47 00000007 48C7C700000000         mov rdi, 0
+    48 0000000E 0F05                   syscall
+    49                                 
+    50 00000010 C3                     ret
+    51                                 
+    52                                 
+    53                                 [global printString]
+    54                                 printString:
+    55                                 
+    56 00000011 48C7C001000000         mov rax, SYS_write
+    57 00000018 4889F2                 mov rdx, rsi
+    58 0000001B 4889FE                 mov rsi, rdi
+    59 0000001E 48C7C701000000         mov rdi, STDOUT
+    60 00000025 0F05                   syscall
+    61                                 
+    62 00000027 C3                     ret
+    63                                 
+    64                                 
+    65                                 [global checkRead]
+    66                                 checkRead:
+    67                                 
+    68 00000028 4883F800               cmp rax, 0
+    69 0000002C 7D17                   jge read
+    70 0000002E 48C7C7[00000000]       mov rdi, not_read
+    71 00000035 488B3425[00000000]     mov rsi, qword [len_not_read]
+    72 0000003D E8CAFFFFFF             call printString
+    73 00000042 E8B4FFFFFF             call exitProgram
+    74                                 read:
+    75                                 
+    76 00000047 C3                     ret
+    77                                 
+    78                                 
+    79                                 [global main]
+    80                                 main:
+    81                                 
+    82 00000048 4989FA                 mov r10, rdi
+    83 0000004B 4989F3                 mov r11, rsi
+    84 0000004E 4983C308               add r11, 8
+    85                                 
+    86 00000052 4883FF02               cmp rdi, 2
+    87 00000056 7417                   je params_ok
+    88 00000058 48C7C7[00000000]       mov rdi, many_par
+    89 0000005F 488B3425[00000000]     mov rsi, qword [len_many]
+    90 00000067 E8A0FFFFFF             call printString
+    91 0000006C E88AFFFFFF             call exitProgram
+    92                                 params_ok:
+    93                                 
+    94 00000071 48C7C002000000         mov rax, SYS_open
+    95 00000078 498B3B                 mov rdi, qword [r11]
+    96 0000007B 48C7C600000000         mov rsi, O_RDONLY
+    97 00000082 0F05                   syscall
+    98                                 
+    99 00000084 4883F800               cmp rax, 0
+   100 00000088 7D17                   jge opened
+   101 0000008A 48C7C7[00000000]       mov rdi, not_open
+   102 00000091 488B3425[00000000]     mov rsi, qword [len_not_open]
+   103 00000099 E86EFFFFFF             call printString
+   104 0000009E E858FFFFFF             call exitProgram
+   105                                 opened:
+   106 000000A3 4989C4                 mov r12, rax
+   107                                 
+   108 000000A6 48C7C3[00000000]       mov rbx, read_string
+   109 000000AD 49C7C500000000         mov r13, 0
+   110                                 
+   111                                 read_file:
+   112 000000B4 48C7C000000000          mov rax, SYS_read
+   113 000000BB 4C89E7                  mov rdi, r12
+   114 000000BE 48C7C6[00000000]        mov rsi, chr
+   115 000000C5 48C7C201000000          mov rdx, 1
+   116 000000CC 0F05                    syscall
+   117                                 
+   118 000000CE E850FFFFFF              call checkRead
+   119                                 
+   120 000000D3 8A0425[00000000]        mov al, byte [chr]
+   121 000000DA 3C0A                    cmp al, LF
+   122 000000DC 7421                    je read_done
+   123                                 
+   124 000000DE 49FFC5                  inc r13
+   125 000000E1 4981FDFE000000          cmp r13, max_read
+   126 000000E8 7DC8                    jge read_file
+   127                                 
+   128 000000EA 8803                    mov byte [rbx], al
+   129 000000EC 48FFC3                  inc rbx
+   130                                 
+   131 000000EF EBC1                    jmp read_file
+   132                                 
+   133 000000F1 4981FDFE000000         cmp r13, max_read
+   134 000000F8 7E05                   jle len_ok
+   135 000000FA 49C7C5FE000000         mov r13, max_read
+   136                                 len_ok:
+   137                                 
+   138                                 read_done:
+   139 00000101 C60300                  mov byte [rbx], NULL
+   140                                 
+   141                                 
+   142                                 
+   143 00000104 48C7C001000000         mov rax, SYS_write
+   144 0000010B 48C7C701000000         mov rdi, STDOUT
+   145 00000112 48C7C6[00000000]       mov rsi, read_string
+   146 00000119 4C89EA                 mov rdx, r13
+   147 0000011C 0F05                   syscall
+   148                                 
+   149                                 endProgram:
+   150 0000011E 48C7C03C000000          mov rax, SYS_exit
+   151 00000125 48C7C700000000          mov rdi, 0
+   152 0000012C 0F05                    syscall

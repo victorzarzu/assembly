@@ -1,0 +1,15 @@
+break endProgram
+run
+set logging file out1.txt
+set logging overwrite
+set logging on
+
+x/fw &s1
+x/fw &s2
+x/fw &s3
+
+x/fg &d1
+x/fg &d2
+x/fg &d3
+
+set logging off

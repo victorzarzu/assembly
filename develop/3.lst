@@ -1,0 +1,143 @@
+     1                                 %line 15+1 3.asm
+     2                                 
+     3                                 [section .bss]
+     4                                 
+     5 00000000 <gap>                  number resd 1
+     6                                 
+     7                                 [section .data]
+     8                                 
+     9                                 NULL equ 0
+    10                                 SYS_exit equ 60
+    11                                 EXIT_SUCCESS equ 0
+    12                                 
+    13 00000000 2B303132333435         strNum db "+012345"
+    14 00000007 07                     len db $ - strNum
+    15 00000008 76616C69642E2E         verif db "valid.."
+    16 0000000F 696E76616C6964         inval db "invalid"
+    17 00000016 01                     pos db 1
+    18                                 
+    19                                 [section .text]
+    20                                 [global _start]
+    21                                 _start:
+    22                                 
+    23 00000000 803C25[00000000]2D     cmp byte [strNum], '-'
+    24 00000008 7508                   jne positive
+    25 0000000A C60425[00000000]00     mov byte [pos], 0
+    26 00000012 EB3E                   jmp okay
+    27                                 positive:
+    28 00000014 803C25[00000000]2B     cmp byte [strNum], '+'
+    29 0000001C 7434                   je okay
+    30                                 
+    31                                 
+    32                                 %line 44+0 3.asm
+    33 0000001E 49C7C000000000         mov r8, 0
+    34                                 ..@4.iter:
+    35 00000025 418A80[00000000]        mov al, byte [inval + r8]
+    36 0000002C 418880[00000000]        mov byte [verif + r8], al
+    37 00000033 49FFC0                  inc r8
+    38 00000036 4983F807                cmp r8, 7
+    39 0000003A 75E7                    jne ..@4.iter
+    40 0000003C 41C680[00000000]00      mov byte [verif + r8], 0
+    41 00000044 C70425[00000000]00-     mov dword [number], 0
+    42 00000044 000000             
+    43 0000004F E913010000              jmp final
+    44                                 
+    45                                 %line 45+1 3.asm
+    46                                 
+    47                                 okay:
+    48                                 
+    49 00000054 49C7C001000000         mov r8, 1
+    50 0000005B C70425[00000000]00-    mov dword [number], 0
+    51 0000005B 000000             
+    52 00000066 48C7C30A000000         mov rbx, 10
+    53                                 
+    54                                 transform:
+    55 0000006D 48C7C000000000          mov rax, 0
+    56 00000074 8B0425[00000000]        mov eax, dword [number]
+    57 0000007B 48F7E3                  mul rbx
+    58 0000007E 418A88[00000000]        mov cl, byte [strNum + r8]
+    59                                 
+    60 00000085 80F930                  cmp cl, '0'
+    61 00000088 7334                    jae a_zero
+    62                                 
+    63                                 %line 60+0 3.asm
+    64 0000008A 49C7C000000000         mov r8, 0
+    65                                 ..@5.iter:
+    66 00000091 418A80[00000000]        mov al, byte [inval + r8]
+    67 00000098 418880[00000000]        mov byte [verif + r8], al
+    68 0000009F 49FFC0                  inc r8
+    69 000000A2 4983F807                cmp r8, 7
+    70 000000A6 75E7                    jne ..@5.iter
+    71 000000A8 41C680[00000000]00      mov byte [verif + r8], 0
+    72 000000B0 C70425[00000000]00-     mov dword [number], 0
+    73 000000B0 000000             
+    74 000000BB E9A7000000              jmp final
+    75                                 
+    76                                 %line 61+1 3.asm
+    77                                  a_zero:
+    78 000000C0 80F939                  cmp cl, '9'
+    79 000000C3 7631                    jbe b_nine
+    80                                 
+    81                                 %line 64+0 3.asm
+    82 000000C5 49C7C000000000         mov r8, 0
+    83                                 ..@6.iter:
+    84 000000CC 418A80[00000000]        mov al, byte [inval + r8]
+    85 000000D3 418880[00000000]        mov byte [verif + r8], al
+    86 000000DA 49FFC0                  inc r8
+    87 000000DD 4983F807                cmp r8, 7
+    88 000000E1 75E7                    jne ..@6.iter
+    89 000000E3 41C680[00000000]00      mov byte [verif + r8], 0
+    90 000000EB C70425[00000000]00-     mov dword [number], 0
+    91 000000EB 000000             
+    92 000000F6 EB72                    jmp final
+    93                                 
+    94                                 %line 65+1 3.asm
+    95                                  b_nine:
+    96                                 
+    97 000000F8 80F930                  cmp cl, '0'
+    98 000000FB 7537                    jne non_zero
+    99 000000FD 4983F801                cmp r8, 1
+   100 00000101 7531                    jne non_first
+   101                                 
+   102                                 %line 71+0 3.asm
+   103 00000103 49C7C000000000         mov r8, 0
+   104                                 ..@7.iter:
+   105 0000010A 418A80[00000000]        mov al, byte [inval + r8]
+   106 00000111 418880[00000000]        mov byte [verif + r8], al
+   107 00000118 49FFC0                  inc r8
+   108 0000011B 4983F807                cmp r8, 7
+   109 0000011F 75E7                    jne ..@7.iter
+   110 00000121 41C680[00000000]00      mov byte [verif + r8], 0
+   111 00000129 C70425[00000000]00-     mov dword [number], 0
+   112 00000129 000000             
+   113 00000134 EB34                    jmp final
+   114                                 
+   115                                 %line 72+1 3.asm
+   116                                  non_zero:
+   117                                  non_first:
+   118                                 
+   119 00000136 80E930                  sub cl, '0'
+   120 00000139 4801C8                  add rax, rcx
+   121 0000013C 890425[00000000]        mov dword [number], eax
+   122 00000143 49FFC0                  inc r8
+   123 00000146 443A0425[00000000]      cmp r8b, byte [len]
+   124 0000014E 0F8513FFFFFF            jne transform
+   125                                 
+   126 00000154 803C25[00000000]01     cmp byte [pos], 1
+   127 0000015C 740C                   je posit
+   128 0000015E F71425[00000000]       not dword [number]
+   129 00000165 FF0425[00000000]       inc dword [number]
+   130                                 
+   131                                 
+   132                                 
+   133                                 
+   134                                 
+   135                                 
+   136                                 posit:
+   137                                 
+   138                                 final:
+   139                                 
+   140                                 last:
+   141 0000016C 48C7C03C000000          mov rax, SYS_exit
+   142 00000173 48C7C700000000          mov rdi, EXIT_SUCCESS
+   143 0000017A 0F05                    syscall

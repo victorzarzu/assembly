@@ -1,0 +1,24 @@
+break last
+run
+set logging file out2.txt
+set logging overwrite
+set logging on
+echo ----------------------------- \n
+echo \n
+
+
+x/db &bAns1
+x/db &bAns2
+x/db &bAns3
+x/db &bAns6
+x/db &bAns7
+x/db &bAns8
+x/dh &wAns11
+x/dh &wAns12
+x/dh &wAns13
+x/db &bAns16
+x/db &bAns17
+x/db &bAns18
+x/db &bRem18
+
+set logging off

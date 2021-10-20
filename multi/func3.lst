@@ -1,0 +1,89 @@
+     1                                 %line 1+1 func3.asm
+     2                                 [section .text]
+     3                                 [global lstSum]
+     4                                 lstSum:
+     5                                 
+     6 00000000 49C7C200000000         mov r10, 0
+     7 00000007 B800000000             mov eax, 0
+     8                                 
+     9                                 sumLoop:
+    10 0000000C 42030497                add eax, dword [rdi + r10 * 4]
+    11 00000010 49FFC2                  inc r10
+    12 00000013 4939F2                  cmp r10, rsi
+    13 00000016 75F2                    jne sumLoop
+    14                                 
+    15 00000018 C3                     ret
+    16                                 
+    17                                 
+    18                                 [global lstAverage]
+    19                                 lstAverage:
+    20                                 
+    21 00000019 49C7C200000000         mov r10, 0
+    22 00000020 B800000000             mov eax, 0
+    23                                 
+    24                                 avgLoop:
+    25 00000025 42030497                add eax, dword [rdi + r10 * 4]
+    26 00000029 49FFC2                  inc r10
+    27 0000002C 4939F2                  cmp r10, rsi
+    28 0000002F 75F2                    jne avgLoop
+    29                                 
+    30 00000031 4899                   cqo
+    31 00000033 48F7FE                 idiv rsi
+    32                                 
+    33 00000036 C3                     ret
+    34                                 
+    35                                 
+    36                                 [global print]
+    37                                 print:
+    38                                 
+    39 00000037 49C7C201000000         mov r10, 1
+    40 0000003E 49C7C30A000000         mov r11, 10
+    41                                 
+    42 00000045 C6062B                 mov byte [rsi], '+'
+    43                                 
+    44 00000048 4883FA00               cmp rdx, 0
+    45 0000004C 7D07                   jge pos
+    46 0000004E 48F7D7                 not rdi
+    47 00000051 48FFC7                 inc rdi
+    48 00000054 C6062D                 mov byte [rsi], '-'
+    49                                 pos:
+    50                                 
+    51                                 
+    52                                 num_to_string:
+    53 00000057 89F8                    mov eax, edi
+    54 00000059 99                      cdq
+    55 0000005A 49F7F3                  div r11
+    56 0000005D 80C230                  add dl, '0'
+    57 00000060 42881416                mov byte [rsi + r10], dl
+    58 00000064 49FFC2                  inc r10
+    59 00000067 89C7                    mov edi, eax
+    60 00000069 83F800                  cmp eax, 0
+    61 0000006C 75E7                    jne num_to_string
+    62                                 
+    63 0000006E 49C7C301000000         mov r11, 1
+    64                                 push_string:
+    65 00000075 48C7C000000000          mov rax, 0
+    66 0000007C 428A041E                mov al, byte [rsi + r11]
+    67 00000080 50                      push rax
+    68 00000081 49FFC3                  inc r11
+    69 00000084 4D39D3                  cmp r11, r10
+    70 00000087 75EA                    jne push_string
+    71                                 
+    72 00000089 49C7C301000000         mov r11, 1
+    73                                 pop_string:
+    74 00000090 58                      pop rax
+    75 00000091 4288041E                mov byte [rsi + r11], al
+    76 00000095 49FFC3                  inc r11
+    77 00000098 4D39D3                  cmp r11, r10
+    78 0000009B 75F1                    jne pop_string
+    79 0000009D 42C6041E0A              mov byte [rsi + r11], 10
+    80 000000A2 49FFC3                  inc r11
+    81 000000A5 42C6041E00              mov byte [rsi + r11], 0
+    82                                 
+    83 000000AA 48C7C001000000         mov rax, 1
+    84 000000B1 48C7C701000000         mov rdi, 1
+    85 000000B8 4889F6                 mov rsi, rsi
+    86 000000BB 4C89DA                 mov rdx, r11
+    87 000000BE 0F05                   syscall
+    88                                 
+    89 000000C0 C3                     ret

@@ -1,0 +1,269 @@
+     1                                 %line 1+1 3.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  sum resb 20
+     5 00000014 <gap>                  sum_int resq 1
+     6                                 
+     7                                 [section .data]
+     8                                 
+     9                                 NULL equ 0
+    10                                 LF equ 10
+    11                                 
+    12                                 SYS_read equ 0
+    13                                 SYS_write equ 1
+    14                                 SYS_exit equ 60
+    15                                 
+    16                                 STDIN equ 0
+    17                                 STDOUT equ 1
+    18                                 
+    19                                 O_RDONLY equ 0
+    20                                 
+    21 00000000 546865206E756D6265-    not_params db "The number of parameters enterd is wrong", NULL
+    22 00000000 72206F662070617261-
+    23 00000000 6D657465727320656E-
+    24 00000000 746572642069732077-
+    25 00000000 726F6E6700         
+    26 00000029 2900000000000000       len_params dq $ - not_params
+    27 00000031 54686520706172616D-    not_numbers db "The parameters need to have the number format", NULL
+    28 00000031 6574657273206E6565-
+    29 00000031 6420746F2068617665-
+    30 00000031 20746865206E756D62-
+    31 00000031 657220666F726D6174-
+    32 00000031 00                 
+    33 0000005F 0000000000000000       len_numbers dq $ - len_numbers
+    34                                 
+    35                                 [section .text]
+    36                                 [global printString]
+    37                                 printString:
+    38                                 
+    39 00000000 48C7C001000000         mov rax, SYS_write
+    40 00000007 4889F2                 mov rdx, rsi
+    41 0000000A 4889FE                 mov rsi, rdi
+    42 0000000D 48C7C701000000         mov rdi, STDOUT
+    43 00000014 0F05                   syscall
+    44                                 
+    45 00000016 C3                     ret
+    46                                 
+    47                                 
+    48                                 [global exitProgram]
+    49                                 exitProgram:
+    50                                 
+    51 00000017 48C7C03C000000         mov rax, SYS_exit
+    52 0000001E 48C7C700000000         mov rdi, 0
+    53 00000025 0F05                   syscall
+    54                                 
+    55 00000027 C3                     ret
+    56                                 
+    57                                 
+    58                                 [global check_params_number]
+    59                                 check_params_number:
+    60                                 
+    61 00000028 4983F804               cmp r8, 4
+    62 0000002C 7417                   je number_params_ok
+    63 0000002E 48C7C7[00000000]       mov rdi, not_params
+    64 00000035 488B3425[00000000]     mov rsi, qword [len_params]
+    65 0000003D E8B9FFFFFF             call printString
+    66 00000042 E8CBFFFFFF             call exitProgram
+    67                                 
+    68                                 number_params_ok:
+    69                                 
+    70 00000047 C3                     ret
+    71                                 
+    72                                 
+    73                                 [global check_string]
+    74                                 check_string:
+    75                                 
+    76                                 check_loop:
+    77 00000048 803F00                  cmp byte [rdi], NULL
+    78 0000004B 743D                    je end_of_string
+    79                                 
+    80 0000004D 803F30                  cmp byte [rdi], '0'
+    81 00000050 7316                    jae above_zero
+    82 00000052 48C7C7[00000000]        mov rdi, not_numbers
+    83 00000059 48C7C6[00000000]        mov rsi, len_numbers
+    84 00000060 E896FFFFFF              call printString
+    85 00000065 E886010000              call endProgram
+    86                                  above_zero:
+    87                                 
+    88 0000006A 803F39                  cmp byte [rdi], '9'
+    89 0000006D 7616                    jbe below_nine
+    90 0000006F 48C7C7[00000000]        mov rdi, not_numbers
+    91 00000076 48C7C6[00000000]        mov rsi, len_numbers
+    92 0000007D E879FFFFFF              call printString
+    93 00000082 E869010000              call endProgram
+    94                                  below_nine:
+    95                                 
+    96 00000087 48FFC7                  inc rdi
+    97 0000008A EBBA                    jmp check_loop
+    98                                 
+    99                                 end_of_string:
+   100                                 
+   101 0000008C C3                     ret
+   102                                 
+   103                                 
+   104                                 [global string_to_number]
+   105                                 string_to_number:
+   106                                 
+   107 0000008D 48C7C10A000000         mov rcx, 10
+   108 00000094 49C7C400000000         mov r12, 0
+   109                                 
+   110                                 loop_convert:
+   111 0000009B 803F00                  cmp byte [rdi], NULL
+   112 0000009E 7413                    je end_number
+   113                                 
+   114 000000A0 4C89E0                  mov rax, r12
+   115 000000A3 48F7E1                  mul rcx
+   116 000000A6 4989C4                  mov r12, rax
+   117                                 
+   118 000000A9 8A07                    mov al, byte [rdi]
+   119 000000AB 2C30                    sub al, '0'
+   120 000000AD 4901C4                  add r12, rax
+   121 000000B0 48FFC7                  inc rdi
+   122                                 
+   123 000000B3 EBE4                    jmp loop_convert
+   124                                 
+   125                                 end_number:
+   126 000000B5 4C89E0                  mov rax, r12
+   127                                 
+   128 000000B8 C3                     ret
+   129                                 
+   130                                 
+   131                                 [global printString_nolength]
+   132                                 printString_nolength:
+   133                                 
+   134 000000B9 4154                   push r12
+   135 000000BB 49C7C400000000         mov r12, 0
+   136 000000C2 4889F9                 mov rcx, rdi
+   137                                 
+   138                                 count_digits:
+   139 000000C5 803900                  cmp byte [rcx], NULL
+   140 000000C8 7406                    je count_done
+   141 000000CA 49FFC4                  inc r12
+   142 000000CD 48FFC1                  inc rcx
+   143 000000D0 EBF1                    jmp count_digits
+   144                                 
+   145                                 count_done:
+   146 000000D2 49FFC4                  inc r12
+   147 000000D5 C6010A                  mov byte [rcx], LF
+   148                                 
+   149 000000D8 4C89EF                 mov rdi, r13
+   150 000000DB 4C89E6                 mov rsi, r12
+   151                                 
+   152                                 
+   153 000000DE C60100                 mov byte [rcx], NULL
+   154                                 
+   155 000000E1 415C                   pop r12
+   156                                 
+   157 000000E3 C3                     ret
+   158                                 
+   159                                 
+   160                                 [global printSum]
+   161                                 printSum:
+   162                                 
+   163 000000E4 4154                   push r12
+   164 000000E6 4155                   push r13
+   165                                 
+   166 000000E8 49C7C4[00000000]       mov r12, sum
+   167 000000EF 49C7C201000000         mov r10, 1
+   168 000000F6 48C7C10A000000         mov rcx, 10
+   169 000000FD 4889F8                 mov rax, rdi
+   170                                 
+   171                                 sum_to_string:
+   172 00000100 4899                    cqo
+   173 00000102 48F7F1                  div rcx
+   174 00000105 4883C230                add rdx, '0'
+   175 00000109 41881424                mov byte [r12], dl
+   176 0000010D 49FFC2                  inc r10
+   177 00000110 49FFC4                  inc r12
+   178 00000113 4883F800                cmp rax, 0
+   179 00000117 75E5                    jne sum_to_string
+   180                                 
+   181 00000119 41C6042400             mov byte [r12], NULL
+   182 0000011E 49C7C4[00000000]       mov r12, sum
+   183                                 
+   184                                 pushing:
+   185 00000125 418A0424                mov al, byte [r12]
+   186 00000129 3C00                    cmp al, NULL
+   187 0000012B 7404                    je push_done
+   188 0000012D 50                      push rax
+   189 0000012E 49FFC4                  inc r12
+   190 00000131 75F0                    jne pushing
+   191                                 
+   192                                 push_done:
+   193 00000133 41C604240A              mov byte [r12], LF
+   194 00000138 49C7C4[00000000]        mov r12, sum
+   195 0000013F 49C7C501000000          mov r13, 1
+   196                                 
+   197                                 popping:
+   198 00000146 58                      pop rax
+   199 00000147 41880424                mov byte [r12], al
+   200 0000014B 49FFC4                  inc r12
+   201 0000014E 49FFC5                  inc r13
+   202 00000151 4D39D5                  cmp r13, r10
+   203 00000154 75EE                    jne popping
+   204                                 
+   205 00000156 48C7C7[00000000]       mov rdi, sum
+   206 0000015D 4C89D6                 mov rsi, r10
+   207 00000160 E896FEFFFF             call printString
+   208                                 
+   209 00000165 415D                   pop r13
+   210 00000167 415C                   pop r12
+   211                                 
+   212 00000169 C3                     ret
+   213                                 
+   214                                 
+   215                                 [global main]
+   216                                 main:
+   217                                 
+   218 0000016A 4989F8                 mov r8, rdi
+   219 0000016D 4989F1                 mov r9, rsi
+   220 00000170 4983C108               add r9, 8
+   221                                 
+   222 00000174 E8AAFEFFFF             call check_params_number
+   223                                 
+   224 00000179 49C7C200000000         mov r10, 0
+   225 00000180 4D89CB                 mov r11, r9
+   226                                 
+   227                                 loop_for_check:
+   228 00000183 498B3B                  mov rdi, qword [r11]
+   229 00000186 E8B8FEFFFF              call check_string
+   230 0000018B 49FFC2                  inc r10
+   231 0000018E 4983C308                add r11, 8
+   232 00000192 4983FA03                cmp r10, 3
+   233 00000196 75E9                    jne loop_for_check
+   234                                 
+   235 00000198 49C7C200000000         mov r10, 0
+   236 0000019F 49C7C500000000         mov r13, 0
+   237 000001A6 4D89CB                 mov r11, r9
+   238                                 
+   239                                 loop_for_sum:
+   240 000001A9 498B3B                  mov rdi, qword [r11]
+   241 000001AC E8D7FEFFFF              call string_to_number
+   242 000001B1 4901C5                  add r13, rax
+   243 000001B4 49FFC2                  inc r10
+   244 000001B7 4983C308                add r11, 8
+   245 000001BB 4983FA03                cmp r10, 3
+   246 000001BF 75E6                    jne loop_for_sum
+   247                                 
+   248 000001C1 4C892C25[00000000]     mov qword [sum_int], r13
+   249                                 
+   250 000001C9 4D89CB                 mov r11, r9
+   251 000001CC 49C7C200000000         mov r10, 0
+   252                                 
+   253                                 
+   254                                 
+   255                                 loop_for_print_string:
+   256 000001D3 498B3B                  mov rdi, qword [r11]
+   257 000001D6 E8D9FEFFFF              call printString_nolength
+   258 000001DB 49FFC2                  inc r10
+   259 000001DE 4983C308                add r11, 8
+   260 000001E2 4983FA03                cmp r10, 3
+   261 000001E6 75E9                    jne loop_for_print_string
+   262                                 
+   263                                 summ:
+   264                                 
+   265 000001E8 488B3C25[00000000]     mov rdi, qword [sum_int]
+   266 000001F0 E8EAFEFFFF             call printSum
+   267                                 
+   268                                 endProgram:
+   269 000001F5 E818FEFFFF              call exitProgram

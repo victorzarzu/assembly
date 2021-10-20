@@ -1,0 +1,51 @@
+     1                                 %line 1+1 1.asm
+     2                                 [section .data]
+     3                                 
+     4                                 SYS_exit equ 60
+     5                                 EXIT_SUCCESS equ 0
+     6                                 
+     7 00000000 07000000               len dd 7
+     8 00000004 08000000F6FFFFFFF1-    arr dd 8, -10, -15, 90, 15, 13
+     9 00000004 FFFFFF5A0000000F00-
+    10 00000004 00000D000000       
+    11 0000001C 00000000               ave dd 0
+    12 00000020 00000000               sum dd 0
+    13                                 
+    14                                 [section .text]
+    15                                 
+    16                                 [global stats1]
+    17                                 stats1:
+    18 00000000 4154                    push r12
+    19                                 
+    20 00000002 49C7C400000000          mov r12, 0
+    21 00000009 48C7C000000000          mov rax, 0
+    22                                 
+    23                                  sumLoop:
+    24 00000010 420304A7                add eax, dword [rdi + r12 * 4]
+    25 00000014 49FFC4                  inc r12
+    26 00000017 4939F4                  cmp r12, rsi
+    27 0000001A 75F2                    jne sumLoop
+    28                                 
+    29 0000001C 8902                    mov dword [rdx], eax
+    30                                 
+    31 0000001E 99                      cdq
+    32 0000001F F7FE                    idiv esi
+    33 00000021 8901                    mov dword [rcx], eax
+    34                                 
+    35 00000023 415C                    pop r12
+    36 00000025 C3                      ret
+    37                                 
+    38                                 [global _start]
+    39                                 _start:
+    40                                 
+    41 00000026 48C7C1[00000000]       mov rcx, ave
+    42 0000002D 48C7C2[00000000]       mov rdx, sum
+    43 00000034 8B3425[00000000]       mov esi, dword [len]
+    44 0000003B 48C7C7[00000000]       mov rdi, arr
+    45 00000042 E8B4FFFFFF             call stats1
+    46                                 
+    47                                 
+    48                                 last:
+    49 00000047 48C7C03C000000          mov rax, SYS_exit
+    50 0000004E 48C7C700000000          mov rdi, EXIT_SUCCESS
+    51 00000055 0F05                    syscall

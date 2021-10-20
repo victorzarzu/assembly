@@ -1,0 +1,33 @@
+     1                                 %line 1+1 func2.asm
+     2                                 [section .text]
+     3                                 [global lstSum]
+     4                                 lstSum:
+     5                                 
+     6 00000000 49C7C200000000         mov r10, 0
+     7 00000007 B800000000             mov eax, 0
+     8                                 
+     9                                 sumLoop:
+    10 0000000C 42030497                add eax, dword [rdi + r10 * 4]
+    11 00000010 49FFC2                  inc r10
+    12 00000013 4939F2                  cmp r10, rsi
+    13 00000016 75F2                    jne sumLoop
+    14                                 
+    15 00000018 C3                     ret
+    16                                 
+    17                                 [global lstAverage]
+    18                                 lstAverage:
+    19                                 
+    20 00000019 49C7C200000000         mov r10, 0
+    21 00000020 B800000000             mov eax, 0
+    22                                 
+    23                                 avgLoop:
+    24 00000025 42030497                add eax, dword [rdi + r10 * 4]
+    25 00000029 49FFC2                  inc r10
+    26 0000002C 4939F2                  cmp r10, rsi
+    27 0000002F 75F2                    jne avgLoop
+    28                                 
+    29                                 
+    30 00000031 99                     cdq
+    31 00000032 48F7FE                 idiv rsi
+    32                                 
+    33 00000035 C3                     ret

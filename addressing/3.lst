@@ -1,0 +1,127 @@
+     1                                 %line 1+1 3.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 60
+     6                                 dword_pace equ 4
+     7                                 
+     8 00000000 F1FFFFFFD3040000F1-    lst dd -15, 1235, -15, -20, 12, 42, 153, 124, 167, -14, 145, 13, -65, 14, 18
+     9 00000000 FFFFFFECFFFFFF0C00-
+    10 00000000 00002A000000990000-
+    11 00000000 007C000000A7000000-
+    12 00000000 F2FFFFFF910000000D-
+    13 00000000 000000BFFFFFFF0E00-
+    14 00000000 000012000000       
+    15 0000003C 0F000000               len dd 15
+    16 00000040 00000000               min dd 0
+    17 00000044 00000000               max dd 0
+    18 00000048 00000000               mid dd 0
+    19 0000004C 00000000               sum dd 0
+    20 00000050 00000000               avg dd 0
+    21 00000054 00000000               med dd 0
+    22 00000058 00000000               med1_poz dd 0
+    23 0000005C FFFFFFFF               med2_poz dd -1
+    24 00000060 00000000               neg_sum dd 0
+    25 00000064 00000000               neg_count dd 0
+    26 00000068 00000000               neg_avg dd 0
+    27 0000006C 00000000               t_sum dd 0
+    28 00000070 00000000               t_count dd 0
+    29 00000074 00000000               t_avg dd 0
+    30                                 
+    31                                 
+    32                                 [section .text]
+    33                                 [global _start]
+    34                                 _start:
+    35                                 
+    36 00000000 48C7C6[00000000]       mov rsi, lst
+    37 00000007 B900000000             mov ecx, 0
+    38 0000000C 8B06                   mov eax, [rsi]
+    39 0000000E 890425[00000000]       mov dword [min], eax
+    40 00000015 890425[00000000]       mov dword [max], eax
+    41 0000001C 890425[00000000]       mov dword [sum], eax
+    42                                 
+    43 00000023 8B0425[00000000]       mov eax, dword [len]
+    44 0000002A BA00000000             mov edx, 0
+    45 0000002F 41B802000000           mov r8d, 2
+    46 00000035 41F7F0                 div r8d
+    47                                 
+    48 00000038 83FA01                 cmp edx, 1
+    49 0000003B 740E                   je non_even
+    50 0000003D 890425[00000000]       mov dword [med2_poz], eax
+    51 00000044 FFC8                   dec eax
+    52 00000046 890425[00000000]       mov dword [med1_poz], eax
+    53                                 non_even:
+    54 0000004D 890425[00000000]        mov dword [med1_poz], eax
+    55                                 
+    56                                 iterate:
+    57 00000054 8B048E                  mov eax, dword [rsi + rcx * dword_pace]
+    58 00000057 010425[00000000]        add dword [sum], eax
+    59                                 
+    60 0000005E 3B0C25[00000000]        cmp ecx, dword [med1_poz]
+    61 00000065 7505                    jne non_med1
+    62 00000067 890425[00000000]        mov dword [med], eax
+    63                                  non_med1:
+    64                                 
+    65 0000006E 3B0C25[00000000]        cmp ecx, dword [med2_poz]
+    66 00000075 7505                    jne non_med2
+    67 00000077 010425[00000000]        add dword [med], eax
+    68                                  non_med2:
+    69                                 
+    70 0000007E 3B0425[00000000]        cmp eax, dword [min]
+    71 00000085 7D05                    jge nothing_min
+    72 00000087 890425[00000000]        mov dword [min], eax
+    73                                  nothing_min:
+    74                                 
+    75 0000008E 3B0425[00000000]        cmp eax, dword [max]
+    76 00000095 7E05                    jle nothing_max
+    77 00000097 890425[00000000]        mov dword [max], eax
+    78                                  nothing_max
+    79                                 
+    80 0000009E 83F800                  cmp eax, 0
+    81 000000A1 7D0C                    jge non_negative
+    82 000000A3 FF0425[00000000]        inc dword [neg_count]
+    83 000000AA 010425[00000000]        add dword [neg_sum], eax
+    84                                  non_negative:
+    85                                 
+    86 000000B1 4189C1                  mov r9d, eax
+    87 000000B4 99                      cdq
+    88 000000B5 41B803000000            mov r8d, 3
+    89 000000BB 41F7F8                  idiv r8d
+    90 000000BE 4883FA00                cmp rdx, 0
+    91 000000C2 750D                    jne non_even_three
+    92 000000C4 FF0425[00000000]        inc dword [t_count]
+    93 000000CB 44010C25[00000000]      add dword [t_sum], r9d
+    94                                  non_even_three
+    95                                 
+    96 000000D3 FFC1                    inc ecx
+    97 000000D5 3B0C25[00000000]        cmp ecx, dword [len]
+    98 000000DC 0F856CFFFFFF            jne iterate
+    99                                 
+   100 000000E2 8B0425[00000000]       mov eax, dword [sum]
+   101 000000E9 99                     cdq
+   102 000000EA F73C25[00000000]       idiv dword [len]
+   103 000000F1 890425[00000000]       mov dword [avg], eax
+   104                                 
+   105 000000F8 833C25[00000000]FF     cmp dword [med2_poz], -1
+   106 00000100 7416                   je non_odd
+   107 00000102 41B802000000           mov r8d, 2
+   108 00000108 8B0425[00000000]       mov eax, dword [med]
+   109 0000010F 99                     cdq
+   110 00000110 41F7F8                 idiv r8d
+   111 00000113 890425[00000000]       mov dword [med], eax
+   112                                 non_odd:
+   113                                 
+   114 0000011A 8B0425[00000000]       mov eax, dword [neg_sum]
+   115 00000121 99                     cdq
+   116 00000122 F73C25[00000000]       idiv dword [neg_count]
+   117 00000129 890425[00000000]       mov dword [neg_avg], eax
+   118                                 
+   119 00000130 8B0425[00000000]       mov eax, dword [t_sum]
+   120 00000137 99                     cdq
+   121 00000138 F73C25[00000000]       idiv dword [t_count]
+   122 0000013F 890425[00000000]       mov dword [t_avg], eax
+   123                                 
+   124                                 last:
+   125 00000146 48C7C03C000000          mov rax, SYS_exit
+   126 0000014D 48C7C700000000          mov rdi, EXIT_SUCCESS
+   127 00000154 0F05                    syscall

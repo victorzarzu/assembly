@@ -1,0 +1,13 @@
+break last
+run
+
+set logging file out5.txt
+set logging overwrite
+set pagination off
+set logging on
+
+x/15cb &str_num1
+x/15cb &str_num2
+x/15cb &str_num3
+
+set logging off

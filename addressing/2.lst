@@ -1,0 +1,55 @@
+     1                                 %line 1+1 2.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 60
+     6                                 dword_pace equ 4
+     7                                 
+     8 00000000 EA030000EC030000EE-    lst dd 1002, 1004, 1006, 1005, 1030, 1100, 1001, 56, 2000
+     9 00000000 030000ED0300000604-
+    10 00000000 00004C040000E90300-
+    11 00000000 0038000000D0070000 
+    12 00000024 09000000               len dd 9
+    13 00000028 00000000               max dd 0
+    14 0000002C 00000000               min dd 0
+    15 00000030 00000000               sum dd 0
+    16 00000034 00000000               avg dd 0
+    17                                 
+    18                                 [section .text]
+    19                                 [global _start]
+    20                                 _start:
+    21                                 
+    22 00000000 48C7C101000000         mov rcx, 1
+    23 00000007 48C7C6[00000000]       mov rsi, lst
+    24 0000000E 8B06                   mov eax, dword [rsi]
+    25 00000010 890425[00000000]       mov dword [max], eax
+    26 00000017 890425[00000000]       mov dword [min], eax
+    27 0000001E 890425[00000000]       mov dword [sum], eax
+    28                                 
+    29                                 iterate:
+    30 00000025 8B048E                  mov eax, dword [rsi + rcx * dword_pace]
+    31 00000028 010425[00000000]        add dword [sum], eax
+    32                                 
+    33 0000002F 3B0425[00000000]        cmp eax, dword [max]
+    34 00000036 7605                    jbe unswitch_max
+    35 00000038 890425[00000000]        mov dword [max], eax
+    36                                  unswitch_max:
+    37                                 
+    38 0000003F 3B0425[00000000]        cmp eax, dword [min]
+    39 00000046 7305                    jae unswitch_min
+    40 00000048 890425[00000000]        mov dword [min], eax
+    41                                  unswitch_min:
+    42                                 
+    43 0000004F 48FFC1                  inc rcx
+    44 00000052 3B0C25[00000000]        cmp ecx, dword [len]
+    45 00000059 75C8                    jne iterate
+    46                                 
+    47 0000005B BA00000000             mov edx, 0
+    48 00000060 8B0425[00000000]       mov eax, dword [sum]
+    49 00000067 F73425[00000000]       div dword [len]
+    50 0000006E 890425[00000000]       mov dword [avg], eax
+    51                                 
+    52                                 last:
+    53 00000075 48C7C03C000000          mov rax, SYS_exit
+    54 0000007C 48C7C700000000          mov rdi, EXIT_SUCCESS
+    55 00000083 0F05                    syscall

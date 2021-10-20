@@ -1,0 +1,36 @@
+     1                                 %line 1+1 9.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 0
+     6                                 
+     7 00000000 0100000000000000       n dq 1
+     8 00000008 0100000000000000       n1 dq 1
+     9 00000010 0000000000000000       n2 dq 0
+    10                                 
+    11                                 [section .text]
+    12                                 [global _start]
+    13                                 _start:
+    14                                 
+    15 00000000 488B0C25[00000000]     mov rcx, qword [n]
+    16                                 
+    17 00000008 4883F901               cmp rcx, 1
+    18 0000000C 7F00                   jg fibo
+    19 0000000E EB2A                   jmp nothing
+    20                                 
+    21                                 fibo:
+    22 00000010 488B1C25[00000000]      mov rbx, qword [n1]
+    23 00000018 488B0425[00000000]      mov rax, qword [n2]
+    24 00000020 4801D8                  add rax, rbx
+    25 00000023 48890425[00000000]      mov qword [n1], rax
+    26 0000002B 48891C25[00000000]      mov qword [n2], rbx
+    27 00000033 48FFC9                  dec rcx
+    28 00000036 4883F900                cmp rcx, 0
+    29 0000003A 75D2                    jne fibo
+    30                                 
+    31                                 nothing:
+    32                                 
+    33                                 last:
+    34 0000003C 48C7C000000000          mov rax, SYS_exit
+    35 00000043 48C7C700000000          mov rdi, EXIT_SUCCESS
+    36 0000004A 0F05                    syscall

@@ -1,0 +1,17 @@
+break last
+run
+
+set logging file out1.txt
+set pagination off
+set logging overwrite
+set logging on
+set prompt
+
+x/dw &avg1
+x/dw &min1
+x/dw &max1
+x/dw &avg2
+x/dw &min2
+x/dw &max2
+
+set logging off

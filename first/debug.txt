@@ -1,0 +1,14 @@
+break last
+run
+set logging file out.txt
+set logging overwrite
+set logging on
+echo --------------------------- \n
+echo \n
+
+x/db &bResult
+x/dh &wResult
+x/dw &dResult
+x/dg &qResult
+
+set logging off

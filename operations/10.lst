@@ -1,0 +1,38 @@
+     1                                 %line 1+1 10.asm
+     2                                 [section .data]
+     3                                 
+     4                                 EXIT_SUCCESS equ 0
+     5                                 SYS_exit equ 0
+     6                                 
+     7 00000000 D204000000000000       n dq 1234
+     8 00000008 0000000000000000       rev dq 0
+     9 00000010 0000000000000000       rst dq 0
+    10                                 
+    11                                 [section .text]
+    12                                 [global _start]
+    13                                 _start:
+    14                                 
+    15                                 
+    16                                 revers:
+    17 00000000 488B0425[00000000]      mov rax, qword [n]
+    18 00000008 48C7C30A000000          mov rbx, 10
+    19 0000000F 48C7C200000000          mov rdx, 0
+    20 00000016 48F7F3                  div rbx
+    21 00000019 48890425[00000000]      mov qword [n], rax
+    22 00000021 4889D1                  mov rcx, rdx
+    23                                 
+    24 00000024 488B0425[00000000]      mov rax, qword [rev]
+    25 0000002C 48F7E3                  mul rbx
+    26 0000002F 4801C8                  add rax, rcx
+    27 00000032 48890425[00000000]      mov qword [rev], rax
+    28 0000003A 48833C25[00000000]-     cmp qword [n], 0
+    29 0000003A 00                 
+    30 00000043 7400                    je ext
+    31 00000045 EBB7                    jmp revers
+    32                                 
+    33                                 ext:
+    34                                 
+    35                                 last:
+    36 00000047 48C7C000000000          mov rax, SYS_exit
+    37 0000004E 48C7C700000000          mov rdi, EXIT_SUCCESS
+    38 00000055 0F05                    syscall

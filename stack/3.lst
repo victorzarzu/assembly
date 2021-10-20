@@ -1,0 +1,95 @@
+     1                                 %line 1+1 3.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  reverse resb 32
+     5 00000020 <gap>                  normal resb 32
+     6 00000040 <gap>                  pal resb 1
+     7                                 
+     8                                 [section .data]
+     9                                 
+    10                                 SYS_exit equ 60
+    11                                 EXIT_SUCCESS equ 0
+    12                                 small_start equ 'a'
+    13                                 small_cap equ 'z'
+    14                                 big_start equ 'A'
+    15                                 big_cap equ 'Z'
+    16                                 diff equ 'a' - 'A'
+    17                                 
+    18 00000000 41206D616E2C206120-    text db "A man, a plan, a canal - Panacm!"
+    19 00000000 706C616E2C20612063-
+    20 00000000 616E616C202D205061-
+    21 00000000 6E61636D21         
+    22 00000020 20                     len db $ - text
+    23                                 
+    24                                 [section .text]
+    25                                 [global _start]
+    26                                 _start:
+    27                                 
+    28 00000000 48C7C100000000         mov rcx, 0
+    29 00000007 49C7C000000000         mov r8, 0
+    30                                 
+    31                                 modify:
+    32 0000000E 8A81[00000000]          mov al, byte [text + rcx]
+    33                                 
+    34 00000014 3C61                    cmp al, small_start
+    35 00000016 7204                    jb not_small
+    36 00000018 3C7A                    cmp al, small_cap
+    37 0000001A 7700                    ja not_small
+    38 0000001C EB0A                    jmp insert_normal
+    39                                  not_small:
+    40                                 
+    41 0000001E 3C41                    cmp al, big_start
+    42 00000020 7204                    jb not_big
+    43 00000022 3C7A                    cmp al, small_cap
+    44 00000024 7700                    ja not_big
+    45 00000026 EB00                    jmp insert_normal
+    46                                  not_big:
+    47                                 
+    48 00000028 EB0E                    jmp final_ops
+    49                                 
+    50                                  insert_normal:
+    51 0000002A 3C5A                    cmp al, big_cap
+    52 0000002C 7700                    ja small_letter
+    53 0000002E 0420                    add al, diff
+    54                                  small_letter:
+    55 00000030 418880[00000000]        mov byte [normal + r8], al
+    56 00000037 49FFC0                  inc r8
+    57                                 
+    58                                  final_ops:
+    59 0000003A 48FFC1                  inc rcx
+    60 0000003D 3A0C25[00000000]        cmp cl, byte [len]
+    61 00000044 75C6                    jne modify
+    62 00000046 48C7C100000000          mov rcx, 0
+    63                                 
+    64                                 pushing:
+    65 0000004D 48C7C000000000          mov rax, 0
+    66 00000054 8A81[00000000]          mov al, byte [normal + rcx]
+    67 0000005A 50                      push rax
+    68 0000005B 48FFC1                  inc rcx
+    69 0000005E 4C39C1                  cmp rcx, r8
+    70 00000061 75E8                    jne pushing
+    71 00000063 48C7C100000000          mov rcx, 0
+    72                                 
+    73                                 poping:
+    74 0000006A 58                      pop rax
+    75 0000006B 8881[00000000]          mov [reverse + rcx], al
+    76 00000071 48FFC1                  inc rcx
+    77 00000074 4C39C1                  cmp rcx, r8
+    78 00000077 75EF                    jne poping
+    79 00000079 48C7C100000000          mov rcx, 0
+    80                                 
+    81                                 verify
+    82 00000080 8A81[00000000]          mov al, [normal + rcx]
+    83 00000086 3A81[00000000]          cmp al, [reverse + rcx]
+    84 0000008C 750E                    jne non_palindrome
+    85 0000008E 48FFC1                  inc rcx
+    86 00000091 4C39C1                  cmp rcx, r8
+    87 00000094 75E8                    jne verify
+    88                                 
+    89 00000096 C60425[00000000]01     mov byte [pal], 1
+    90                                 non_palindrome:
+    91                                 
+    92                                 last:
+    93 0000009E 48C7C03C000000          mov rax, SYS_exit
+    94 000000A5 48C7C700000000          mov rdi, EXIT_SUCCESS
+    95 000000AC 0F05                    syscall

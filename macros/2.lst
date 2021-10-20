@@ -1,0 +1,74 @@
+     1                                 %line 15+1 2.asm
+     2                                 
+     3                                 [section .data]
+     4                                 
+     5                                 SYS_exit equ 60
+     6                                 EXIT_SUCCESS equ 0
+     7                                 
+     8 00000000 050000000A0000000F-    list1 dd 5, 10, 15, 20, 25
+     9 00000000 000000140000001900-
+    10 00000000 0000               
+    11 00000014 05000000               len1 dd ($ - list1) / 4
+    12                                 
+    13 00000018 05000000FAFFFFFFF6-    list2 dd 5, -6, -10, 25, 253, -12
+    14 00000018 FFFFFF19000000FD00-
+    15 00000018 0000F4FFFFFF       
+    16 00000030 06000000               len2 dd ($ - list2) / 4
+    17                                 
+    18 00000034 340000000100000000-    list3 dd 52, 1, 0, -14, 100, 156, -13
+    19 00000034 000000F2FFFFFF6400-
+    20 00000034 00009C000000F3FFFF-
+    21 00000034 FF                 
+    22 00000050 07000000               len3 dd ($ - list3) / 4
+    23                                 
+    24                                 [section .text]
+    25                                 [global _start]
+    26                                 _start:
+    27                                 
+    28                                 
+    29                                 %line 34+0 2.asm
+    30 00000000 48C7C100000000         mov rcx, 0
+    31 00000007 BB02000000             mov ebx, 2
+    32                                 
+    33                                 ..@3.iterate:
+    34 0000000C 8B048D[00000000]        mov eax, dword [list1 + rcx * 4]
+    35 00000013 F7EB                    imul ebx
+    36 00000015 89048D[00000000]        mov dword [list1 + rcx * 4], eax
+    37 0000001C FFC1                    inc ecx
+    38 0000001E 3B0C25[00000000]        cmp ecx, dword [len1]
+    39 00000025 75E3                    jne ..@3.iterate
+    40                                 
+    41                                 %line 35+1 2.asm
+    42                                 
+    43                                 %line 35+0 2.asm
+    44 00000027 48C7C100000000         mov rcx, 0
+    45 0000002E BB02000000             mov ebx, 2
+    46                                 
+    47                                 ..@4.iterate:
+    48 00000033 8B048D[00000000]        mov eax, dword [list2 + rcx * 4]
+    49 0000003A F7EB                    imul ebx
+    50 0000003C 89048D[00000000]        mov dword [list2 + rcx * 4], eax
+    51 00000043 FFC1                    inc ecx
+    52 00000045 3B0C25[00000000]        cmp ecx, dword [len2]
+    53 0000004C 75E3                    jne ..@4.iterate
+    54                                 
+    55                                 %line 36+1 2.asm
+    56                                 
+    57                                 %line 36+0 2.asm
+    58 0000004E 48C7C100000000         mov rcx, 0
+    59 00000055 BB02000000             mov ebx, 2
+    60                                 
+    61                                 ..@5.iterate:
+    62 0000005A 8B048D[00000000]        mov eax, dword [list3 + rcx * 4]
+    63 00000061 F7EB                    imul ebx
+    64 00000063 89048D[00000000]        mov dword [list3 + rcx * 4], eax
+    65 0000006A FFC1                    inc ecx
+    66 0000006C 3B0C25[00000000]        cmp ecx, dword [len3]
+    67 00000073 75E3                    jne ..@5.iterate
+    68                                 
+    69                                 %line 37+1 2.asm
+    70                                 
+    71                                 last:
+    72 00000075 48C7C03C000000          mov rax, SYS_exit
+    73 0000007C 48C7C700000000          mov rdi, EXIT_SUCCESS
+    74 00000083 0F05                    syscall

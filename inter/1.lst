@@ -1,0 +1,111 @@
+     1                                 %line 1+1 1.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  hex_value resb 20
+     5 00000014 <gap>                  one resq 1
+     6                                 
+     7                                 [section .data]
+     8                                 
+     9                                 almost_qw equ 8 * 7
+    10                                 
+    11                                 SYS_write equ 1
+    12                                 SYS_exit equ 60
+    13                                 
+    14                                 EXIT_SUCCESS equ 0
+    15                                 STDOUT equ 1
+    16                                 
+    17                                 NULL equ 0
+    18                                 LF equ 10
+    19                                 
+    20                                 [section .text]
+    21                                 [global printString]
+    22                                 printString:
+    23                                 
+    24 00000000 48C7C001000000         mov rax, SYS_write
+    25 00000007 4889FE                 mov rsi, rdi
+    26 0000000A 48C7C701000000         mov rdi, STDOUT
+    27 00000011 48C7C213000000         mov rdx, 19
+    28 00000018 0F05                   syscall
+    29                                 
+    30 0000001A C3                     ret
+    31                                 
+    32                                 
+    33                                 [global int_to_hex]
+    34                                 int_to_hex:
+    35                                 
+    36 0000001B 48C7C138000000         mov rcx, almost_qw
+    37 00000022 48C7C610000000         mov rsi, 16
+    38 00000029 49C7C0[00000000]       mov r8, hex_value
+    39 00000030 4983C002               add r8, 2
+    40                                 
+    41                                 loop_hex:
+    42 00000034 8A040F                  mov al, byte [rdi + rcx]
+    43 00000037 4899                    cqo
+    44 00000039 48F7F6                  div rsi
+    45                                 
+    46 0000003C 80FA0A                  cmp dl, 10
+    47 0000003F 7C0B                    jl not_btts
+    48                                 
+    49 00000041 4883EA0A                sub rdx, 10
+    50 00000045 80C241                  add dl, 'A'
+    51 00000048 41885001                mov byte [r8 + 1], dl
+    52 0000004C EB05                    jmp smaller_done
+    53                                 
+    54                                  not_btts:
+    55 0000004E 80C230                  add dl, '0'
+    56 00000051 41885001                mov byte [r8 + 1], dl
+    57                                  smaller_done:
+    58                                 
+    59 00000055 4883F80A                cmp rax, 10
+    60 00000059 7C09                    jl not_bttg
+    61                                 
+    62 0000005B 4883E80A                sub rax, 10
+    63 0000005F 0441                    add al, 'A'
+    64 00000061 418800                  mov byte [r8], al
+    65 00000064 EB03                    jmp bigger_done
+    66                                 
+    67                                  not_bttg:
+    68 00000066 0430                    add al, '0'
+    69 00000068 418800                  mov byte [r8], al
+    70                                  bigger_done:
+    71                                 
+    72 0000006B 4983C002                add r8, 2
+    73                                 
+    74 0000006F 4883E908                sub rcx, 8
+    75 00000073 4883F900                cmp rcx, 0
+    76 00000077 7DB9                    jge loop_hex
+    77                                 
+    78 00000079 41C6000A               mov byte [r8], LF
+    79 0000007D 41C6400100             mov byte [r8 + 1], NULL
+    80 00000082 48C7C7[00000000]       mov rdi, hex_value
+    81 00000089 E86DFFFFFF             call printString
+    82                                 
+    83 0000008E C3                     ret
+    84                                 
+    85                                 [global _start]
+    86                                 _start:
+    87                                 
+    88 0000008F C60425[00000000]30     mov byte [hex_value], '0'
+    89 00000097 C60425[01000000]78     mov byte [hex_value + 1], 'x'
+    90                                 
+    91 0000009F 0F010C25[00000000]     sidt qword [one]
+    92 000000A7 488B3C25[00000000]     mov rdi, qword [one]
+    93 000000AF E862FFFFFF             call int_to_hex
+    94                                 
+    95 000000B4 EB24                   jmp endProgram
+    96 000000B6 49C7C200010000         mov r10, 256
+    97                                 
+    98                                 loop_idt:
+    99 000000BD 488B3C25[00000000]      mov rdi, qword [one]
+   100 000000C5 E84CFFFFFF              call int_to_hex
+   101 000000CA 48830425[00000000]-     add qword [one], 8
+   102 000000CA 08                 
+   103 000000D3 49FFCA                  dec r10
+   104 000000D6 4983FA00                cmp r10, 0
+   105 000000DA 75DF                    jne loop_idt
+   106                                 
+   107                                 
+   108                                 endProgram:
+   109 000000DC 48C7C03C000000          mov rax, SYS_exit
+   110 000000E3 48C7C700000000          mov rdi, EXIT_SUCCESS
+   111 000000EA 0F05                    syscall

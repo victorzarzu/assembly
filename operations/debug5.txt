@@ -1,0 +1,34 @@
+break last
+run
+set logging file out5.txt
+set logging overwrite
+set logging on
+
+x/dw &dAns1
+x/xw &dAns1
+x/dw &dAns2
+x/xw &dAns2
+x/dw &dAns3
+x/xw &dAns3
+x/dw &dAns6
+x/xh &dAns6
+x/dw &dAns7
+x/xw &dAns7
+x/dw &dAns8
+x/xw &dAns8
+x/dg &qAns11
+x/xg &qAns11
+x/dg &qAns12
+x/xg &qAns12
+x/dg &qAns13
+x/xg &qAns13
+x/dw &dAns16
+x/xw &dAns16
+x/dw &dAns17
+x/xw &dAns17
+x/dw &dAns18
+x/xw &dAns18
+x/dw &dRem18
+x/xw &dRem18
+
+set logging off

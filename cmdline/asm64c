@@ -1,0 +1,2 @@
+yasm -g dwarf2 -f elf64 $1.asm -l $1.lst
+g++ -g -no-pie $1.o -o $1

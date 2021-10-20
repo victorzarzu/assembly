@@ -1,0 +1,194 @@
+     1                                 %line 1+1 2.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  idesc resq 1
+     5 00000008 <gap>                  odesc resq 1
+     6 00000010 <gap>                  line_nr resq 1
+     7 00000018 <gap>                  buffer resb 32
+     8 00000038 <gap>                  line resb 10
+     9                                 
+    10                                 [section .data]
+    11                                 
+    12                                 NULL equ 0
+    13                                 LF equ 10
+    14                                 LINE_MAX equ 9
+    15                                 BUFFER_MAX equ 32
+    16                                 
+    17                                 SYS_read equ 0
+    18                                 SYS_write equ 1
+    19                                 SYS_open equ 2
+    20                                 SYS_close equ 3
+    21                                 SYS_creat equ 85
+    22                                 SYS_exit equ 60
+    23                                 
+    24                                 STDIN equ 0
+    25                                 STDOUT equ 1
+    26                                 
+    27                                 O_RDONLY equ 0
+    28                                 S_IRWXU equ 00700
+    29                                 
+    30                                 [section .text]
+    31                                 [global printString]
+    32                                 printString:
+    33                                 
+    34 00000000 48C7C001000000         mov rax, SYS_write
+    35 00000007 4889F2                 mov rdx, rsi
+    36 0000000A 4889FE                 mov rsi, rdi
+    37 0000000D 48C7C701000000         mov rdi, STDOUT
+    38 00000014 0F05                   syscall
+    39                                 
+    40 00000016 C3                     ret
+    41                                 
+    42                                 [global openFile]
+    43                                 openFile:
+    44                                 
+    45 00000017 48C7C002000000         mov rax, SYS_open
+    46 0000001E 48C7C600000000         mov rsi, O_RDONLY
+    47 00000025 0F05                   syscall
+    48                                 
+    49 00000027 48890425[00000000]     mov qword [idesc], rax
+    50                                 
+    51 0000002F C3                     ret
+    52                                 
+    53                                 [global createFile]
+    54                                 createFile:
+    55                                 
+    56 00000030 48C7C055000000         mov rax, SYS_creat
+    57 00000037 48C7C6C0010000         mov rsi, S_IRWXU
+    58 0000003E 0F05                   syscall
+    59                                 
+    60 00000040 48890425[00000000]     mov qword [odesc], rax
+    61                                 
+    62 00000048 C3                     ret
+    63                                 
+    64                                 [global int_to_string]
+    65                                 int_to_string:
+    66                                 
+    67 00000049 4151                   push r9
+    68                                 
+    69 0000004B 48C7C10A000000         mov rcx, 10
+    70 00000052 49C7C200000000         mov r10, 0
+    71                                 digits:
+    72 00000059 4889F8                  mov rax, rdi
+    73 0000005C 4899                    cqo
+    74 0000005E 48F7F1                  div rcx
+    75 00000061 4889C7                  mov rdi, rax
+    76 00000064 80C230                  add dl, '0'
+    77 00000067 418892[00000000]        mov byte [line + r10], dl
+    78 0000006E 49FFC2                  inc r10
+    79 00000071 4883FF00                cmp rdi, 0
+    80 00000075 75E0                    jne digits
+    81 00000077 41C682[00000000]20      mov byte [line + r10], ' '
+    82                                 
+    83 0000007F 49C7C100000000         mov r9, 0
+    84                                 pushing:
+    85 00000086 418A81[00000000]        mov al, byte [line + r9]
+    86 0000008D 50                      push rax
+    87 0000008E 49FFC1                  inc r9
+    88 00000091 4D39D1                  cmp r9, r10
+    89 00000094 75EE                    jne pushing
+    90 00000096 49C7C100000000          mov r9, 0
+    91                                 
+    92                                 popping:
+    93 0000009D 58                      pop rax
+    94 0000009E 418881[00000000]        mov byte [line + r9], al
+    95 000000A5 49FFC1                  inc r9
+    96 000000A8 4D39D1                  cmp r9, r10
+    97 000000AB 75EE                    jne popping
+    98 000000AD 49FFC2                  inc r10
+    99                                 
+   100 000000B0 4159                   pop r9
+   101                                 
+   102 000000B2 C3                     ret
+   103                                 
+   104                                 [global getLine]
+   105                                 getLine:
+   106                                 
+   107 000000B3 488B3C25[00000000]     mov rdi, qword [line_nr]
+   108 000000BB E884FFFFFF             call int_to_string
+   109                                 
+   110                                 buffer_loop:
+   111 000000C0 4983F820                cmp r8, BUFFER_MAX
+   112 000000C4 752E                    jne no_fetch
+   113                                 
+   114 000000C6 48C7C000000000          mov rax, SYS_read
+   115 000000CD 488B3C25[00000000]      mov rdi, qword [idesc]
+   116 000000D5 48C7C6[00000000]        mov rsi, buffer
+   117 000000DC 48C7C220000000          mov rdx, BUFFER_MAX
+   118 000000E3 0F05                    syscall
+   119                                 
+   120 000000E5 4883F800                cmp rax, 0
+   121 000000E9 75FF                    jne not_empty
+   122 000000EB C3                      ret
+   123                                 
+   124                                  not_empty:
+   125 000000EC 49C7C000000000          mov r8, 0
+   126 000000F3 4989C1                  mov r9, rax
+   127                                 
+   128                                  no_fetch:
+   129                                 
+   130 000000F6 418A80[00000000]        mov al, byte [buffer + r8]
+   131 000000FD 418882[00000000]        mov byte [line + r10], al
+   132 00000104 49FFC2                  inc r10
+   133 00000107 49FFC0                  inc r8
+   134                                 
+   135 0000010A 3C0A                    cmp al, LF
+   136 0000010C 7528                    jne not_linefeed
+   137                                 
+   138 0000010E 48C7C7[00000000]        mov rdi, line
+   139 00000115 4C89D6                  mov rsi, r10
+   140 00000118 E8DEFEFFFF              call printString
+   141                                 
+   142 0000011D 48C7C001000000          mov rax, 1
+   143 00000124 4D39C8                  cmp r8, r9
+   144 00000127 750C                    jne not_eof
+   145 00000129 4983F920                cmp r9, BUFFER_MAX
+   146 0000012D 7406                    je not_smaller
+   147 0000012F 48C7C000000000          mov rax, 0
+   148 00000136 C3                      ret
+   149                                  not_smaller:
+   150                                  not_eof:
+   151                                 
+   152 00000137 C3                      ret
+   153                                 
+   154                                  not_linefeed:
+   155                                 
+   156 00000138 4983FA09                cmp r10, LINE_MAX
+   157 0000013C 7514                    jne not_full_line
+   158                                 
+   159 0000013E 48C7C7[00000000]        mov rdi, line
+   160 00000145 4C89D6                  mov rsi, r10
+   161 00000148 E8AEFEFFFF              call printString
+   162                                 
+   163 0000014D 49C7C200000000          mov r10, 0
+   164                                 
+   165                                  not_full_line:
+   166                                 
+   167 00000154 E962FFFFFF              jmp buffer_loop
+   168                                 
+   169 00000159 48C7C001000000         mov rax, 1
+   170 00000160 C3                     ret
+   171                                 
+   172                                 [global main]
+   173                                 main:
+   174                                 
+   175 00000161 488B7E08               mov rdi, qword [rsi + 8]
+   176 00000165 4C8B5E10               mov r11, qword [rsi + 16]
+   177 00000169 E8A4FEFFFF             call openFile
+   178 0000016E 4C89DF                 mov rdi, r11
+   179 00000171 E8B5FEFFFF             call createFile
+   180                                 
+   181 00000176 49C7C020000000         mov r8, BUFFER_MAX
+   182 0000017D 48C70425[00000000]-    mov qword [line_nr], 1
+   183 0000017D 01000000           
+   184                                 
+   185                                 get_line:
+   186 00000189 E820FFFFFF              call getLine
+   187 0000018E 48FF0425[00000000]      inc qword [line_nr]
+   188 00000196 4883F800                cmp rax, 0
+   189 0000019A 75EB                    jne get_line
+   190                                 
+   191                                 endProgram:
+   192 0000019C 48C7C03C000000          mov rax, SYS_exit
+   193 000001A3 48C7C700000000          mov rdi, 0
+   194 000001AA 0F05                    syscall

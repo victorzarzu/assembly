@@ -1,0 +1,86 @@
+     1                                 %line 1+1 5.asm
+     2                                 [section .bss]
+     3                                 
+     4 00000000 <gap>                  str_num1 resb 15
+     5 0000000F <gap>                  str_num2 resb 15
+     6 0000001E <gap>                  str_num3 resb 15
+     7                                 
+     8                                 [section .data]
+     9                                 
+    10                                 SYS_exit equ 60
+    11                                 EXIT_SUCCESS equ 0
+    12                                 len equ 15
+    13                                 
+    14 00000000 A1370000               num1 dd 14241
+    15 00000004 029EE8FF               num2 dd -1532414
+    16 00000008 015F0000               num3 dd 24321
+    17                                 
+    18                                 [section .text]
+    19                                 
+    20                                 [global num_to_str]
+    21                                 num_to_str
+    22                                 
+    23 00000000 49C7C200000000         mov r10, 0
+    24 00000007 48C7C10A000000         mov rcx, 10
+    25 0000000E 83FF00                 cmp edi, 0
+    26 00000011 49C7C300000000         mov r11, 0
+    27 00000018 7C05                   jl negative
+    28 0000001A 49C7C301000000         mov r11, 1
+    29                                 negative:
+    30                                 
+    31                                 iterate:
+    32 00000021 42C6041620              mov byte [rsi + r10], ' '
+    33 00000026 49FFC2                  inc r10
+    34 00000029 4939D2                  cmp r10, rdx
+    35 0000002C 75F1                    jne iterate
+    36 0000002E 49FFCA                  dec r10
+    37 00000031 42C6041600              mov byte [rsi + r10], 0
+    38 00000036 49FFCA                  dec r10
+    39                                 
+    40                                 iterate_num:
+    41 00000039 89F8                    mov eax, edi
+    42 0000003B 99                      cdq
+    43 0000003C F7F9                    idiv ecx
+    44 0000003E 89C7                    mov edi, eax
+    45 00000040 B8FFFFFFFF              mov eax, -1
+    46 00000045 4983FB01                cmp r11, 1
+    47 00000049 7402                    je positive_decimal
+    48 0000004B F7D2                    not edx
+    49 0000004D FFC2                    inc edx
+    50                                  positive_decimal:
+    51 0000004F 4883C230                add rdx, '0'
+    52 00000053 42881416                mov byte [rsi + r10], dl
+    53 00000057 49FFCA                  dec r10
+    54 0000005A 83FF00                  cmp edi, 0
+    55 0000005D 75D8                    jne iterate_num
+    56                                 
+    57 0000005F 42C604162B             mov byte [rsi + r10], '+'
+    58 00000064 4983FB01               cmp r11, 1
+    59 00000068 7403                   je positive
+    60 0000006A 42C604162D             mov byte [rsi + r10], '-'
+    61                                 positive:
+    62                                 
+    63 0000006F C3                     ret
+    64                                 
+    65                                 [global _start]
+    66                                 _start:
+    67                                 
+    68 00000070 8B3C25[00000000]       mov edi, dword [num1]
+    69 00000077 48C7C6[00000000]       mov rsi, str_num1
+    70 0000007E BA0F000000             mov edx, len
+    71 00000083 E873FFFFFF             call num_to_str
+    72                                 
+    73 00000088 8B3C25[00000000]       mov edi, dword [num2]
+    74 0000008F 48C7C6[00000000]       mov rsi, str_num2
+    75 00000096 BA0F000000             mov edx, len
+    76 0000009B E85BFFFFFF             call num_to_str
+    77                                 
+    78 000000A0 8B3C25[00000000]       mov edi, dword [num3]
+    79 000000A7 48C7C6[00000000]       mov rsi, str_num3
+    80 000000AE BA0F000000             mov edx, len
+    81 000000B3 E843FFFFFF             call num_to_str
+    82                                 
+    83                                 last:
+    84 000000B8 48C7C03C000000          mov rax, SYS_exit
+    85 000000BF 48C7C700000000          mov rdi, EXIT_SUCCESS
+    86 000000C6 0F05                    syscall

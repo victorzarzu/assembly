@@ -1,0 +1,7 @@
+(gdb) Already logging to out6.txt.
+(gdb) 0x40201c:	532531
+(gdb) 0x402020:	-55337
+(gdb) 0x402024:	0
+(gdb) 0x402028:	0
+(gdb) 0x40202c:	0
+(gdb) 
