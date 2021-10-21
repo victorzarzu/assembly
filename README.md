@@ -1,2 +1,2 @@
 # assembly
-a repository with my files create while I was learning 64 bits yasm
+a repository with my files create whiled I was learning 64 bits yasm
